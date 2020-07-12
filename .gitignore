@@ -1,0 +1,9 @@
+
+# ignore latex intermediate files
+documentation/*.aux
+documentation/*.log
+documentation/*.out
+documentation/*.gz
+documentation/*.toc
+documentation/*.pdf
+
