@@ -18,3 +18,4 @@ jobs:
       uses: xu-cheng/latex-action@v2
       with:
         root_file: documentation/doc.tex
+        working_directory: documentation
