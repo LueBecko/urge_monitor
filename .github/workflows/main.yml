@@ -15,4 +15,6 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build documenation
-      run: documentation/build.sh
+      uses: xu-cheng/latex-action@v2
+      with:
+        root_file: documentation/doc.tex
