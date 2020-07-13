@@ -7,3 +7,5 @@ documentation/*.gz
 documentation/*.toc
 documentation/*.pdf
 
+# ignore python virtual environment
+.venv/*
