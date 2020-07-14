@@ -6,6 +6,11 @@ documentation/*.out
 documentation/*.gz
 documentation/*.toc
 documentation/*.pdf
+documentation/*.fls
+documentation/*.fdb_latexmk
 
 # ignore python virtual environment
 .venv/*
+
+# ignore ide configuration
+.vscode/*
