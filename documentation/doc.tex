@@ -13,7 +13,7 @@
 
 \setcounter{secnumdepth}{3}
 
-\title{Urge-Report fMRI\\Documentation}
+\title{Urge-Monitor\\Documentation}
 \author{Christian Beck}
 \begin{document}
 \maketitle
@@ -22,15 +22,15 @@
 
 \chapter{Basics}
 
-\section{Software-Dependencies}
+\section{Runtime-Environment \& Dependencies}
 
-The urge-report program depends on a number of software packages. However all dependencies are enclosed in the environment of PsychoPy (Windows confirmed, Mac open, Linux package based). So the cleanest way is to install PsychoPy and then execute the program from within the Python 2.7 console bundled with PsychoPy.
+The runtime environment of urge-monitor is setup with a given script (\textit{setup-environment.sh} in the source root of this project). The runtime environment is a python virtual environment that contains all dependencies. To run the environment setup script you need a Python3, Python3-venv and pip3 installed.
 
-Urge-Report fMRI was developed with PsychoPy 1.83.04. Even though newer versions might work, using the exact version is recommended. Psychopy-packages for all platforms can be found at \url{https://github.com/psychopy/psychopy/releases/tag/1.83.04} .
+The runtime environment contains all dependencies needed to run urge-monitor - especially PsychoPy and all it's dependencies.
 
-\paragraph{Note on versions:} It might be that the urge-report program works fine with other versions of the above package (and it might even be that newer version improve on some qualities). However no other versions were extensively tested. No guarantee can be given for good performance or correct functioning if any other packages are used. The same argument applies also for single packages that Psychopy depends on (e.g. pyglet, scipy, \dots)
+Urge-Monitor is developed with PsychoPy3, version 2020.1.2. Even though newer versions might work, using the exact version is recommended. Psychopy-packages for all platforms can be found at \url{https://github.com/psychopy/psychopy/releases} .
 
-\paragraph{Note on Python 2.7:} This version is not the newest python (still receives support) and generally it is recommended to switch to Python 3. However PsychoPy builds on old packages, which are not ported to Python 3 and therefore PsychoPy remains Python 2.7 only and thus the Urge-Report software also solely runs from Python 2.7.
+\paragraph{Note on versions:} It might be that the urge-monitor works fine with other versions of the above package (and it might even be that newer version improve on some qualities). However no other versions were extensively tested. No guarantee can be given for good performance or correct functioning if any other packages are used. The same argument applies also for single packages that Psychopy depends on.
 
 \section{Installing the software}
 
