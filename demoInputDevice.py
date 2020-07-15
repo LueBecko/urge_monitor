@@ -3,9 +3,9 @@
 from psychopy import core, visual, gui
 from urge_monitor import InputDevice
 
-myDlg = gui.Dlg(title="Select InputDevice test")
-myDlg.addText('Make sure the selected device is present')
-myDlg.addField('Device:', choices=['InputDeviceMousePosAbs',
+deviceDialog = gui.Dlg(title="Select InputDevice demo")
+deviceDialog.addText('Make sure the selected device is present')
+deviceDialog.addField('Device:', choices=['InputDeviceMousePosAbs',
                                    'InputDeviceMousePosRel',
                                    'InputDeviceMouseWheel',
                                    'InputDeviceAuto',
@@ -13,21 +13,21 @@ myDlg.addField('Device:', choices=['InputDeviceMousePosAbs',
                                    'InputDeviceJoystickAbsolut',
                                    'InputDeviceKeyboard',
                                    'InputDeviceKeyboardHub'])
-myDlg.show()  # show dialog and wait for OK or Cancel
-if myDlg.OK:  # then the user pressed OK
-    thisInfo = myDlg.data
-    print(thisInfo)
+deviceDialog.show()  # show dialog and wait for OK or Cancel
+if deviceDialog.OK:  # then the user pressed OK
+    selectedDevice = str(deviceDialog.data[0])
+    print("selected device: " + selectedDevice)
 
-win = visual.Window()
-ts = visual.TextStim(win, text=str(0.5), color=(-1, -1, -1))
+window = visual.Window()
+valueLabel = visual.TextStim(window, text=str(0.5), color=(-1, -1, -1))
 
 device_creator = {
     'InputDeviceMousePosAbs':
-        lambda: InputDevice.InputDeviceMousePosAbs(win),
+        lambda: InputDevice.InputDeviceMousePosAbs(window),
     'InputDeviceMousePosRel':
-        lambda: InputDevice.InputDeviceMousePosRel(win=win, sensitivity=1),
+        lambda: InputDevice.InputDeviceMousePosRel(win=window, sensitivity=1),
     'InputDeviceMouseWheel':
-        lambda: InputDevice.InputDeviceMouseWheel(win=win, sensitivity=0.01),
+        lambda: InputDevice.InputDeviceMouseWheel(win=window, sensitivity=0.01),
     'InputDeviceAuto':
         lambda: InputDevice.InputDeviceAuto(sensitivity=0.01),
     'InputDeviceJoystick':
@@ -42,7 +42,7 @@ device_creator = {
             key_up='up', key_down='down')
     }
 
-dev = device_creator[str(thisInfo[0])]()
+device = device_creator[selectedDevice]()
 
 cl = core.Clock()
 plotclock_increment = 1.0 / 10.0
@@ -51,11 +51,12 @@ plotclock = core.Clock()
 uval = 0.5
 while cl.getTime() <= 10.0:
     if plotclock.getTime() >= 0.0:  # update plot
-        uval = dev.readValue()
-        ts.setText(str(uval))
+        device.readValue()
+        uval = device.getValue()
+        valueLabel.setText(str(uval))
         plotclock.add(plotclock_increment)
 
-    ts.draw()
-    win.flip()
+    valueLabel.draw()
+    window.flip()
 
-win.close()
+window.close()

@@ -266,7 +266,7 @@ def CreateInputDevice(C, win):
         'JoystickAbs':
             lambda: InputDeviceJoystickAbs(
                 name=C['name'], sensitivity=C['sensitivity'],
-                axishat=C['axis_hat'], channelid=C['channel_id']),
+                channelid=C['channel_id']),
         'Keyboard':
             lambda: InputDeviceKeyboard(
                 sensitivity=C['sensitivity'], key_up=C['key_up'],
