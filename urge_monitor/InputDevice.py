@@ -2,7 +2,7 @@
 
 from psychopy import event
 from psychopy.hardware import joystick
-from psychopy.iohub.client import launchHubServer
+from psychopy.iohub import launchHubServer
 joystick.backend = 'pyglet'
 
 
@@ -35,8 +35,6 @@ class InputDeviceMousePosAbs(InputDeviceAbstract):
 
     def getValue(self):
         # min max because of occasional overshoots
-        #urgevalue = min(1, max(0,
-            #(p - self.__scale_bot) / self.__scale_range - 0.5))
         urgevalue = min(1, max(0,
             (self.p - self.__scale_bot) / self.__scale_range))
         return urgevalue
@@ -126,7 +124,6 @@ class InputDeviceJoystick(InputDeviceAbstract):
             J = joystick.Joystick(iJoy)
             Joysticks[J.getName()] = iJoy
             J._device.close()
-        #print Joysticks.keys()
         self.__joystick = joystick.Joystick(Joysticks[name])
         if axishat:
             self.__readValue = lambda self: self.readValueAxis()
@@ -194,7 +191,6 @@ class InputDeviceKeyboard(InputDeviceAbstract):
         self.keylist = [key_up, key_down]
         self.__sensitivity = sensitivity
         self.__pos = 0.5
-        #self.lastKeys = set()
 
     def readValue(self):
         self.lastKeys.update(set(event.getKeys(keyList=self.keylist)))
@@ -205,7 +201,6 @@ class InputDeviceKeyboard(InputDeviceAbstract):
         if self.keylist[1] in self.lastKeys:
             self.__pos -= self.__sensitivity
         self.__pos = min(1.0, max(0.0, self.__pos))
-        #event.clearEvents(eventType='keyboard')
         self.lastKeys = set()
         return self.__pos
 
@@ -230,7 +225,6 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
 
     def readValue(self):
         self.lastKeys.update(self.__keyboard.state)
-        #print self.lastKeys
 
     def getValue(self):
         if self.keylist[0] in self.lastKeys:
@@ -238,7 +232,6 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
         if self.keylist[1] in self.lastKeys:
             self.__pos -= self.__sensitivity
         self.__pos = min(1.0, max(0.0, self.__pos))
-        #event.clearEvents(eventType='keyboard')
         self.lastKeys = dict()
         return self.__pos
 
@@ -246,34 +239,34 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
         self.__io.shutdown()
 
 
-def CreateInputDevice(C, win):
-    #__assert_input__(C)
+def CreateInputDevice(config, window):
+    #__assert_input__(config)
     device_creator = {
         'MousePosAbs':
-            lambda: InputDeviceMousePosAbs(win=win),
+            lambda: InputDeviceMousePosAbs(win=window),
         'MousePosRel':
-            lambda: InputDeviceMousePosRel(win=win,
-                sensitivity=C['sensitivity']),
+            lambda: InputDeviceMousePosRel(win=window,
+                sensitivity=config['sensitivity']),
         'MouseWheel':
-            lambda: InputDeviceMouseWheel(win=win,
-                sensitivity=C['sensitivity']),
+            lambda: InputDeviceMouseWheel(win=window,
+                sensitivity=config['sensitivity']),
         'Auto':
-            lambda: InputDeviceAuto(sensitivity=C['sensitivity']),
+            lambda: InputDeviceAuto(sensitivity=config['sensitivity']),
         'Joystick':
             lambda: InputDeviceJoystick(
-                name=C['name'], sensitivity=C['sensitivity'],
-                axishat=C['axis_hat'], channelid=C['channel_id']),
+                name=config['name'], sensitivity=config['sensitivity'],
+                axishat=config['axis_hat'], channelid=config['channel_id']),
         'JoystickAbs':
             lambda: InputDeviceJoystickAbs(
-                name=C['name'], sensitivity=C['sensitivity'],
-                channelid=C['channel_id']),
+                name=config['name'], sensitivity=config['sensitivity'],
+                channelid=config['channel_id']),
         'Keyboard':
             lambda: InputDeviceKeyboard(
-                sensitivity=C['sensitivity'], key_up=C['key_up'],
-                key_down=C['key_down']),
+                sensitivity=config['sensitivity'], key_up=config['key_up'],
+                key_down=config['key_down']),
         'KeyboardHub':
             lambda: InputDeviceKeyboardHub(
-                sensitivity=C['sensitivity'], key_up=C['key_up'],
-                key_down=C['key_down']),
+                sensitivity=config['sensitivity'], key_up=config['key_up'],
+                key_down=config['key_down']),
         }
-    return device_creator[C['device']]()
+    return device_creator[config['device']]()
