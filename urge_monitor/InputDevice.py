@@ -2,7 +2,7 @@
 
 from psychopy import event
 from psychopy.hardware import joystick
-from psychopy.iohub import launchHubServer
+from psychopy.iohub.client import launchHubServer
 joystick.backend = 'pyglet'
 
 

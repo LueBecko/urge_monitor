@@ -1,3 +1,6 @@
+# python support files
+**/__pycache__/*
+**/*.pyc
 
 # ignore latex intermediate files
 documentation/*.aux
@@ -14,3 +17,9 @@ documentation/*.fdb_latexmk
 
 # ignore ide configuration
 .vscode/*
+
+# psychopy artifacts
+**/.iohpid
+
+# other misc files
+**log.txt

@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import sys
-sys.path.append('../urge_report_fmri')
-import InputDevice
-
 from psychopy import core, visual, gui
+from urge_monitor import InputDevice
 
 myDlg = gui.Dlg(title="Select InputDevice test")
 myDlg.addText('Make sure the selected device is present')

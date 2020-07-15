@@ -3,7 +3,7 @@
 # TODO:
 #        Remove helpers import
 
-import ConfigParser
+import configparser
 import os
 import warnings
 from visuals import helpers  # remove this dep
@@ -66,7 +66,7 @@ class ExperimentConfig:
             raise InvalidConfigException(self.expFolder,
                 'The folder does not contain exp.ini.')
         # start reading the experiment
-        cp = ConfigParser.RawConfigParser()
+        cp = configparser.RawConfigParser()
         cp.read(self.expFile)
         for se in cp.sections():
             self.configExp[se] = {}
@@ -133,7 +133,7 @@ class ExperimentConfig:
             '(monitor.ini). The default monitor file will be used (' +
             self.monFile + ')')
         # read
-        cp = ConfigParser.RawConfigParser()
+        cp = configparser.RawConfigParser()
         cp.read(self.monFile)
         for se in cp.sections():
             self.configMon[se] = {}
@@ -205,7 +205,7 @@ class ExperimentConfig:
             '(input.ini). The default input file will be used (' +
             self.inpFile + ')')
         # read
-        cp = ConfigParser.RawConfigParser()
+        cp = configparser.RawConfigParser()
         cp.read(self.inpFile)
         for se in cp.sections():
             self.configInp[se] = {}
@@ -272,7 +272,7 @@ class ExperimentConfig:
             '(pulse.ini). The default pulse file will be used (' +
             self.pulFile + ')')
         # read
-        cp = ConfigParser.RawConfigParser()
+        cp = configparser.RawConfigParser()
         cp.read(self.pulFile)
         for se in cp.sections():
             self.configPul[se] = {}
@@ -829,7 +829,7 @@ class ExperimentConfig:
             '(defaults.ini). The default defaults file will be used (' +
             self.defFile + ')')
         # read
-        cp = ConfigParser.RawConfigParser()
+        cp = configparser.RawConfigParser()
         cp.read(self.defFile)
         for se in cp.sections():
             self.configDef[se] = {}
@@ -846,7 +846,7 @@ class ExperimentConfig:
                 self.configRuns[-1][se] = {}
                 self.configRuns[-1][se].update(self.configDef[se])
             if len(eval(run[1])) > 0:
-                cp = ConfigParser.RawConfigParser()
+                cp = configparser.RawConfigParser()
                 cp.read(self.expFolder + os.sep + eval(run[1]))
                 for se in cp.sections():
                     for it in cp.options(se):
