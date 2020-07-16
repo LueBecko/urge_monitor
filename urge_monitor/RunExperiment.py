@@ -1,22 +1,12 @@
 # -*- coding: utf-8 -*-
-# top level experiment controll
-#
-# TODO: Formating of elements, About button(Icon), tooltips?
-
-#import sys
-#if sys.platform.startswith('win'):  # windows
-    #pass
-#else:  # linux
-    #sys.path.append('../dependencies')
+# top level experiment control ui
 
 import os
 import wx
 from psychopy import core, logging
-import config
-import mainloop
 
 baseDir = os.getcwd()
-print baseDir
+print(baseDir)
 
 # Create on module wide app object.
 # Within this programm there is no other position that uses a wx gui.

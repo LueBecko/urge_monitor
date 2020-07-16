@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# TODO:
 
 from psychopy import core, logging
 from psychopy.iohub import launchHubServer

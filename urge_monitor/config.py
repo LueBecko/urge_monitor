@@ -6,8 +6,12 @@
 import configparser
 import os
 import warnings
+
+from serial import (EIGHTBITS, FIVEBITS, PARITY_EVEN, PARITY_MARK, PARITY_NONE,
+                    PARITY_ODD, PARITY_SPACE, SEVENBITS, SIXBITS, STOPBITS_ONE,
+                    STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO)
+
 from visuals import helpers  # remove this dep
-from serial import *
 
 
 class InvalidConfigException(BaseException):
@@ -27,8 +31,9 @@ class InvalidConfigException(BaseException):
 class ExperimentConfig:
     """interface to read parameters from config files (RFC 822 compatible)"""
 
+# TODO: factory methods for read experiment and read defaults
     def __init__(self, expName, baseDir):
-        """reads default values from given defaults.ini"""
+        """reads experiment config and fills holes with default values"""
         # setup
         self.configExp = {}
         self.configMon = {}
@@ -868,6 +873,7 @@ class ExperimentConfig:
             return self.configRuns
         elif key in ['pulse']:
             return self.configPul
+        # TODO: check if runtime is used at all
         elif key in ['runtime']:
             return self.runtimeInfos
         else:
@@ -875,6 +881,7 @@ class ExperimentConfig:
 
 
 ##### HELPER FUNCTIONS #####
+# TODO: extract into config validation module and test these methods
 def __is_numeric_pos__(n):
     test = isinstance(n, (int, float))
     if not test:
@@ -981,6 +988,7 @@ def __is_color_hsv__(col):
     return test
 
 
+# TODO: make this into a method
 __is_color__ = {'rgb': lambda col: __is_color_rgb__(col),
                 'rgb255': lambda col: __is_color_rgb255__(col),
                 'hsv': lambda col: __is_color_hsv__(col)}
