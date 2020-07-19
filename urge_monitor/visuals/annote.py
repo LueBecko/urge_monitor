@@ -15,7 +15,8 @@ def AddAnnote(name, text, pos, size, col):
     assert isinstance(text, str)
     helpers.__assert_position__(pos)
     assert isinstance(size, (float, int))
-    helpers.__assert_color__[__win.colorSpace](col)
+    validator = helpers.ColorValidator()
+    validator.validateColor(__win.colorSpace, col)
     assert name not in drawable
     # create graphical object
     drawable[name] = visual.TextStim(__win,

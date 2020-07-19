@@ -41,6 +41,7 @@ class ExperimentConfig:
         self.configPul = {}
         self.configDef = {}
         self.configRuns = []
+        # the experiment uses this config field to track runtime informations
         self.runtimeInfos = {}
         self.baseDir = baseDir
         self.expName = expName
@@ -529,11 +530,16 @@ class ExperimentConfig:
                 'control-urge_sample_rate needs to be a positive number')
         # validate visuals
         cs = self.configMon['window']['color_space']
+        colorTransformator = helpers.ColorspaceTransformator()
+        black = colorTransformator.colorspace_to_colorspace('rgb255', cs, (0,0,0))
+        darkgrey = colorTransformator.colorspace_to_colorspace('rgb255', cs, (95,95,95))
+        grey = colorTransformator.colorspace_to_colorspace('rgb255', cs, (127,127,127))
+        white = colorTransformator.colorspace_to_colorspace('rgb255', cs, (255,255,255))
         if not 'visuals' in list(conf.keys()):
             raise InvalidConfigException(filename,
                 'no visuals section')
         if not 'col' in list(conf['visuals'].keys()):
-            conf['visuals']['col'] = helpers.__rgb255_to_colspace[cs]((0, 0, 0))
+            conf['visuals']['col'] = black
             warnings.warn(filename + ': no visuals-col, set to default black')
         elif not __is_color__[cs](conf['visuals']['col']):
             raise InvalidConfigException(filename,
@@ -558,15 +564,13 @@ class ExperimentConfig:
             raise InvalidConfigException(filename,
                 'visuals-bg_width must be a positive number')
         if not 'bg_col' in list(conf['visuals'].keys()):
-            conf['visuals']['bg_col'] = helpers.__rgb255_to_colspace[cs](
-                (127, 127, 127))
+            conf['visuals']['bg_col'] = grey
             warnings.warn(filename + ': no visuals-bg_col, set to grey')
         elif not __is_color__[cs](conf['visuals']['bg_col']):
             raise InvalidConfigException(filename,
                 'visuals-bg_col not a correct color, check colorspace')
         if not 'bg_frame_col' in list(conf['visuals'].keys()):
-            conf['visuals']['bg_frame_col'] = helpers.__rgb255_to_colspace[cs](
-                (127, 127, 127))
+            conf['visuals']['bg_frame_col'] = grey
             warnings.warn(filename + ': no visuals-bg_frame_col, set to grey')
         elif not __is_color__[cs](conf['visuals']['bg_frame_col']):
             raise InvalidConfigException(filename,
@@ -591,15 +595,13 @@ class ExperimentConfig:
             raise InvalidConfigException(filename,
                 'visuals-fg_width must be a positive number')
         if not 'fg_col' in list(conf['visuals'].keys()):
-            conf['visuals']['fg_col'] = helpers.__rgb255_to_colspace[cs](
-                (95, 95, 95))
+            conf['visuals']['fg_col'] = darkgrey
             warnings.warn(filename + ': no visuals-fg_col, set to dark grey')
         elif not __is_color__[cs](conf['visuals']['fg_col']):
             raise InvalidConfigException(filename,
                 'visuals-fg_col not a correct color, check colorspace')
         if not 'fg_frame_col' in list(conf['visuals'].keys()):
-            conf['visuals']['fg_frame_col'] = helpers.__rgb255_to_colspace[cs](
-                (95, 95, 95))
+            conf['visuals']['fg_frame_col'] = darkgrey
             warnings.warn(filename + ': no visuals-fg_frame_col, ' +
             'set to dark grey')
         elif not __is_color__[cs](conf['visuals']['fg_frame_col']):
@@ -643,8 +645,7 @@ class ExperimentConfig:
             raise InvalidConfigException(filename,
                 'visuals-hist_fade must be a boolean')
         if not 'hist_col' in list(conf['visuals'].keys()):
-            conf['visuals']['hist_col'] = helpers.__rgb255_to_colspace[cs](
-                (255, 255, 255))
+            conf['visuals']['hist_col'] = white
             warnings.warn(filename + ': no visuals-hist_col, set to white')
         elif not __is_color__[cs](conf['visuals']['hist_col']):
             raise InvalidConfigException(filename,
@@ -675,15 +676,13 @@ class ExperimentConfig:
             raise InvalidConfigException(filename,
                 'visuals-scales_widthr must be a positive number')
         if not 'scales_col' in list(conf['visuals'].keys()):
-            conf['visuals']['scales_col'] = helpers.__rgb255_to_colspace[cs](
-                (255, 255, 255))
+            conf['visuals']['scales_col'] = white
             warnings.warn(filename + ': no visuals-scales_col, set to white')
         elif not __is_color__[cs](conf['visuals']['scales_col']):
             raise InvalidConfigException(filename,
                 'visuals-scales_col not a correct color, check colorspace')
         if not 'scales_text_col' in list(conf['visuals'].keys()):
-            conf['visuals']['scales_text_col'] = helpers.__rgb255_to_colspace[
-                cs]((255, 255, 255))
+            conf['visuals']['scales_text_col'] = white
             warnings.warn(filename + ':no visuals-scales_text_col set to white')
         elif not __is_color__[cs](conf['visuals']['scales_text_col']):
             raise InvalidConfigException(filename,
@@ -808,7 +807,7 @@ class ExperimentConfig:
                     'visuals-asize must be a list of positive numbers')
         if not 'acol' in list(conf['visuals'].keys()):
             conf['visuals']['acol'] = (l *
-                [helpers.__rgb255_to_colspace[cs]((255, 255, 255))])
+                [white])
             warnings.warn(filename + ': visuals-acol missing,' +
                 ' all texts will be rendered in white')
         if not isinstance(conf['visuals']['acol'], (list, tuple)):
@@ -873,7 +872,6 @@ class ExperimentConfig:
             return self.configRuns
         elif key in ['pulse']:
             return self.configPul
-        # TODO: check if runtime is used at all
         elif key in ['runtime']:
             return self.runtimeInfos
         else:

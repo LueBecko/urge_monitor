@@ -11,7 +11,7 @@ L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=0)
 
 logging.setDefaultClock(clock)
 logging.exp(msg='Testbench started')
-Conf = config.ExperimentConfig('test','.')  # read default config parameters
+Conf = config.ExperimentConfig('demoVisuals','.')  # read default config parameters
 t = 5.0
 
 

@@ -34,19 +34,19 @@ def CreateBGBar(win, conf):
         [-conf['bg_width'] / 2.0, conf['bg_height'] / 2.0],
         [conf['bg_width'] / 2.0, conf['bg_height'] / 2.0]]
 
+    colorValidator = helpers.ColorValidator()
+    grey = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', win.colorSpace, [127, 127, 127])
     # test parameters: bg_col
     if 'bg_col' in conf:
-        helpers.__assert_color__[win.colorSpace](conf['bg_col'])
+        colorValidator.validateColor(win.colorSpace, conf['bg_col'])
     else:
-        conf['bg_col'] = (
-            helpers.__rgb255_to_colspace[win.colorSpace]([127, 127, 127]))
+        conf['bg_col'] = grey
 
     # test parameters: bg_frame_col
     if 'bg_frame_col' in conf:
-        helpers.__assert_color__[win.colorSpace](conf['bg_frame_col'])
+        colorValidator.validateColor(win.colorSpace, conf['bg_frame_col'])
     else:
-        conf['bg_frame_col'] = (
-            helpers.__rgb255_to_colspace[win.colorSpace]([127, 127, 127]))
+        conf['bg_frame_col'] = grey
 
     # test parameters: bg_frame_width
     if 'bg_frame_width' in conf:
@@ -101,19 +101,19 @@ def CreateFGBar(win, conf):
         [-conf['fg_width'] / 2.0, conf['fg_height'] / 2.0],
         [conf['fg_width'] / 2.0, conf['fg_height'] / 2.0]]
 
+    colorValidator = helpers.ColorValidator()
+    darkgrey = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', win.colorSpace, [95, 95, 95])
     # test parameters: fg_col
     if 'fg_col' in conf:
-        helpers.__assert_color__[win.colorSpace](conf['fg_col'])
+        colorValidator.validateColor(win.colorSpace, conf['fg_col'])
     else:
-        conf['fg_col'] = (
-            helpers.__rgb255_to_colspace[win.colorSpace]([95, 95, 95]))
+        conf['fg_col'] = darkgrey
 
     # test parameters: fg_frame_col
     if 'fg_frame_col' in conf:
-        helpers.__assert_color__[win.colorSpace](conf['fg_frame_col'])
+        colorValidator.validateColor(win.colorSpace, conf['fg_frame_col'])
     else:
-        conf['fg_frame_col'] = (
-            helpers.__rgb255_to_colspace[win.colorSpace]([95, 95, 95]))
+        conf['fg_frame_col'] = darkgrey
 
     # test parameters: fg_frame_width
     if 'fg_frame_width' in conf:

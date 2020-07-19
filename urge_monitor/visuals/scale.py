@@ -23,13 +23,13 @@ def CreateScale(win, conf):
             for i in range(l)])
     assert all([isinstance(conf['scales_text_size'][i], (float, int))
             for i in range(l)])
-    helpers.__assert_color__[win.colorSpace](conf['scales_text_col'])
+    colorValidator = helpers.ColorValidator()
+    colorValidator.validateColor(win.colorSpace, conf['scales_text_col'])
+    colorValidator.validateColor(win.colorSpace, conf['scales_col'])
     assert isinstance(conf['scales_widthl'], (int, float))
     assert isinstance(conf['scales_widthr'], (int, float))
     assert isinstance(conf['scales_thickness'], (int, float))
-    helpers.__assert_color__[win.colorSpace](conf['scales_col'])
     # create scales
-    #l = len(conf['scales_text'])
     if l == 1:
         y = [0.0]
     else:

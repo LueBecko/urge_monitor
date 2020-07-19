@@ -92,7 +92,8 @@ def CreateVis(Cvis=None):
         assert isinstance(Cvis, dict)
         __Cvis.update(Cvis)
     # set bg color
-    helpers.__assert_color__[__Cwin['color_space']](__Cvis['col'])
+    validator = helpers.ColorValidator()
+    validator.validateColor(__Cwin['color_space'], __Cvis['col'])
     getWin().setColor(__Cvis['col'])
     # start doing important stuff
     scale.CreateScale(getWin(), __Cvis)
