@@ -1,39 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-def __assert_color_rgb255__(col):
-    assert isinstance(col, (list, tuple))
-    assert len(col) == 3
-    assert isinstance(col[0], (int, float))
-    assert isinstance(col[1], (int, float))
-    assert isinstance(col[2], (int, float))
-    assert col[0] >= 0 and col[0] <= 255
-    assert col[1] >= 0 and col[1] <= 255
-    assert col[2] >= 0 and col[2] <= 255
-
-
-def __assert_color_rgb__(col):
-    assert isinstance(col, (list, tuple))
-    assert len(col) == 3
-    assert isinstance(col[0], (int, float))
-    assert isinstance(col[1], (int, float))
-    assert isinstance(col[2], (int, float))
-    assert col[0] >= -1 and col[0] <= 1
-    assert col[1] >= -1 and col[1] <= 1
-    assert col[2] >= -1 and col[2] <= 1
-
-
-def __assert_color_hsv__(col):
-    assert isinstance(col, (list, tuple))
-    assert len(col) == 3
-    assert isinstance(col[0], (int, float))
-    assert isinstance(col[1], (int, float))
-    assert isinstance(col[2], (int, float))
-    assert col[0] >= 0 and col[0] <= 360  # hue
-    assert col[1] >= 0 and col[1] <= 1  # saturation
-    assert col[2] >= 0 and col[2] <= 1  # value
-
-
 def __assert_resolution__(res):
     assert isinstance(res, (list, tuple))
     assert len(res) == 2
@@ -51,13 +18,43 @@ def __assert_position__(pos):
 
 
 class ColorValidator:
-    __validations = {'rgb': lambda col: __assert_color_rgb__(col),
-                    'rgb255': lambda col: __assert_color_rgb255__(col),
-                    'hsv': lambda col: __assert_color_hsv__(col)}
+    def __assert_color_rgb255__(self, col):
+        assert isinstance(col, (list, tuple))
+        assert len(col) == 3
+        assert isinstance(col[0], (int, float))
+        assert isinstance(col[1], (int, float))
+        assert isinstance(col[2], (int, float))
+        assert col[0] >= 0 and col[0] <= 255
+        assert col[1] >= 0 and col[1] <= 255
+        assert col[2] >= 0 and col[2] <= 255
+
+    def __assert_color_rgb__(self, col):
+        assert isinstance(col, (list, tuple))
+        assert len(col) == 3
+        assert isinstance(col[0], (int, float))
+        assert isinstance(col[1], (int, float))
+        assert isinstance(col[2], (int, float))
+        assert col[0] >= -1 and col[0] <= 1
+        assert col[1] >= -1 and col[1] <= 1
+        assert col[2] >= -1 and col[2] <= 1
+
+    def __assert_color_hsv__(self, col):
+        assert isinstance(col, (list, tuple))
+        assert len(col) == 3
+        assert isinstance(col[0], (int, float))
+        assert isinstance(col[1], (int, float))
+        assert isinstance(col[2], (int, float))
+        assert col[0] >= 0 and col[0] <= 360  # hue
+        assert col[1] >= 0 and col[1] <= 1  # saturation
+        assert col[2] >= 0 and col[2] <= 1  # value
+
+    __validations = {'rgb': lambda self, col: self.__assert_color_rgb__(col),
+                    'rgb255': lambda self, col: self.__assert_color_rgb255__(col),
+                    'hsv': lambda self, col: self.__assert_color_hsv__(col)}
 
     def validateColor(self, colorSpace, colorValue):
         self.validateColorSpace(colorSpace)
-        self.__validations[colorSpace](colorValue)
+        self.__validations[colorSpace.lower()](self, colorValue)
 
     def validateColorSpace(self, colorSpace):
         assert isinstance(colorSpace, str)
