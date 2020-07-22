@@ -34,7 +34,7 @@ def CreateHist(win, conf):
     if 'hist_col' in conf:
         helpers.ColorValidator().validateColor(win.colorSpace, conf['hist_col'])
     else:
-        conf['hist_col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', win.colorSpace, [255, 255, 255]))
+        conf['hist_col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', win.colorSpace, [255, 255, 255])
     if 'hist_side' in conf:
         assert isinstance(conf['hist_side'], str)
         conf['hist_side'] = conf['hist_side'].lower()

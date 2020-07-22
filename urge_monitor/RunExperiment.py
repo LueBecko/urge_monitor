@@ -3,10 +3,11 @@
 
 import os
 import wx
+import config
+import mainloop
 from psychopy import core, logging
 
 baseDir = os.getcwd()
-print(baseDir)
 
 # Create on module wide app object.
 # Within this programm there is no other position that uses a wx gui.
@@ -188,7 +189,7 @@ Are you sure?""", 'Question',
             e.Veto()
 
     def addConfFields(self, panel, info):
-        container = wx.GridSizer(cols=2, hgap=10)
+        container = wx.GridSizer(cols=2, gap=wx.Size(10,10))
         for infoKey in info:
             #create label
             inputLabel = wx.StaticText(panel, -1, infoKey,

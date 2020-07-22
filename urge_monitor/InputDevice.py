@@ -240,7 +240,6 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
 
 
 def CreateInputDevice(config, window):
-    #__assert_input__(config)
     device_creator = {
         'MousePosAbs':
             lambda: InputDeviceMousePosAbs(win=window),

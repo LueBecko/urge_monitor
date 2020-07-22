@@ -23,3 +23,8 @@ documentation/*.fdb_latexmk
 
 # other misc files
 **log.txt
+
+# log, info and result files
+**/log-*.txt
+**.info
+**.csv

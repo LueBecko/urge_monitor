@@ -11,7 +11,7 @@ import math
 import csv
 import psychopy.info
 from psychopy import data
-import ConfigParser
+import configparser
 
 
 # Status Constants
@@ -110,7 +110,7 @@ class DataHandler:
 
     def __writeInfo__(self, SysInf=None):
         if self.__infWriter is None:
-            self.__infWriter = ConfigParser.RawConfigParser()
+            self.__infWriter = configparser.RawConfigParser()
 
         section_main = 'main'
         if not self.__infWriter.has_section(section_main):
