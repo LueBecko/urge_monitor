@@ -16,7 +16,6 @@ jobs:
         uses: onichandame/python-test-action@0.0.0
         with:
           deps_list: "requirements.txt"
-          path: "."
           test_dir: "."
           pattern: "*.test.py"
                     
