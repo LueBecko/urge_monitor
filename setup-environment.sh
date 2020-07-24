@@ -1,16 +1,13 @@
 #!/bin/bash
 
-ENVIRONMENT_FOLDER=".venv"
-
 ## setup python3 environment - Ubuntu style (needs sudo rights)
 apt install libusb-1.0-0-dev portaudio19-dev libasound2-dev # sound suport for PTB bindings
 apt install python3-venv
 apt install python3-pip
-apt install python3-pygame
+#apt install python3-pygame
 apt install libgtk-3-dev
 
-# deactivate a present venv first
-#deactivate
+ENVIRONMENT_FOLDER=".venv"
 
 # checks if env already exists: is yes delete and rebuild
 if [ -d "$ENVIRONMENT_FOLDER" ]; then
@@ -19,15 +16,15 @@ if [ -d "$ENVIRONMENT_FOLDER" ]; then
 fi
 
 # create virtual environment
-#python3 -m venv "$ENVIRONMENT_FOLDER"
+python3 -m venv "$ENVIRONMENT_FOLDER"
 
-# activate virtual environment (set +x in case this was not set correctly by the setup)
+# activate virtual environment
 activate () {
    . $ENVIRONMENT_FOLDER/bin/activate
 }
 
 #chmod +x "$ENVIRONMENT_FOLDER/bin/activate"
-#activate
+activate
 
 # install psychopy via pip
 pip3 install psychopy
