@@ -62,7 +62,6 @@ class PulseListener:
         elif self.__interface__ == 'serial':
             return len(self.__port__.read(1)) != 0
         elif self.__interface__ == 'keyboard':
-            #print self.__InputListener__.GetPressedKeys()
             return self.__key__ in self.__InputListener__.GetPressedKeys()
 
     def __del__(self):
@@ -113,15 +112,16 @@ def MainLoop(C):
     DH = DataHandler.DataHandler(C['exp']['info'],
         C['exp']['runs'][CurrRun][0],
         C['exp']['main'], C['runs'][CurrRun])
+    graphics = None
 
     try:
         # generate visual elements
-        visuals.CreateVisuals(Cmon=C['monitor']['monitor'],
-            Cwin=C['monitor']['window'], Cvis=C['runs'][CurrRun]['visuals'])
+        graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
+            C['monitor']['window'], C['runs'][CurrRun]['visuals'])
         logging.info(msg='graphical objects generated')
 
         # generate input object
-        IL = InputListener.InputListener(C['input'])
+        IL = InputListener.InputListener(C['input'], graphics.getWindow())
         KeyAbort = C['exp']['main']['abort_key']
         IL.RegisterKey(KeyAbort)
         c = 0
@@ -151,7 +151,7 @@ def MainLoop(C):
             logging.info('Audio Object (end) created')
 
         urgevalue = 0.5
-        visuals.flip()
+        graphics.flip()
 
         DH.setState(state=DataHandler.STATE.RUNNING)
 
@@ -163,8 +163,6 @@ def MainLoop(C):
         sampleclock_increment = (1.0 /
             C['runs'][CurrRun]['control']['urge_sample_rate'])
         sampleclock = core.Clock()
-        #  print(C['runs'][CurrRun]['control']['urge_sample_rate'])
-        #  print(sampleclock_increment)
         t_run = float(C['runs'][CurrRun]['control']['run_time'])
 
 ###############################################################
@@ -180,7 +178,7 @@ def MainLoop(C):
                 plotclock.add(plotclock_increment)
 
             if frameclock.getTime() >= 0.0:  # draw frame
-                visuals.flip()  # flip first to ensure best frame timing
+                graphics.flip()  # flip first to ensure best frame timing
                 frameclock.add(frameclock_increment)
                 visuals.bars.UpdateFGBar(urgevalue)  # minimal draw lag
 
@@ -227,7 +225,7 @@ def MainLoop(C):
                     plotclock.add(plotclock_increment)
 
                 if frameclock.getTime() >= 0.0:  # draw frame
-                    visuals.flip()  # flip first to ensure best frame timing
+                    graphics.flip()  # flip first to ensure best frame timing
                     frameclock.add(frameclock_increment)
                     visuals.bars.UpdateFGBar(urgevalue)  # minimal draw lag
 
@@ -251,10 +249,11 @@ def MainLoop(C):
             error_code=DataHandler.ERROR_CODE.ERROR_OTHER)
         DH.passError(e)
         DH.endRecording()
-        visuals.CloseVisuals()
+        if (graphics is not None):
+            del graphics
         raise e
     else:
         if DH.getState() == DataHandler.STATE.RUNNING:
             DH.setState(state=DataHandler.STATE.FINISHED)
         DH.endRecording()
-        visuals.CloseVisuals()
+        del graphics

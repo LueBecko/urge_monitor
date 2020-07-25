@@ -33,7 +33,7 @@ class ExperimentConfig:
 
 # TODO: factory methods for read experiment and read defaults
     def __init__(self, expName, baseDir):
-        """reads experiment config and fills holes with default values"""
+        """reads experiment config and fills missing values with default values"""
         # setup
         self.configExp = {}
         self.configMon = {}
@@ -173,7 +173,7 @@ class ExperimentConfig:
         if not 'window' in self.configMon:
             self.configMon['window'] = {}
             warnings.warn('No window section given, it is generated ' +
-                'automatically and will be fileld with default values.')
+                'automatically and will be filled with default values.')
         if not 'fullscr' in self.configMon['window']:
             self.configMon['window']['fullscr'] = True
             warnings.warn('missing window fullscr. Set to True.')
@@ -193,6 +193,8 @@ class ExperimentConfig:
         elif not __is_color_space__(self.configMon['window']['color_space']):
             raise InvalidConfigException(self.monFile,
                 'window color_space needs to be a valid color space.')
+        if not 'col' in self.configMon['window']:
+            self.configMon['window']['col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace("rgb255",self.configMon['window']['color_space'], [0,0,0])
         if not 'resolution' in self.configMon['window']:
             self.configMon['window']['resolution'] = (
                 self.configMon['monitor']['resolution'])

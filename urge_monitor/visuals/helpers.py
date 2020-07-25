@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 
-def __assert_resolution__(res):
-    assert isinstance(res, (list, tuple))
-    assert len(res) == 2
-    assert isinstance(res[0], int)
-    assert isinstance(res[1], int)
-    assert res[0] > 0
-    assert res[1] > 0
+class ResolutionValidator:
+    def validateResolution(self, resolution):
+        assert isinstance(resolution, (list, tuple))
+        assert len(resolution) == 2
+        assert isinstance(resolution[0], int)
+        assert isinstance(resolution[1], int)
+        assert resolution[0] > 0
+        assert resolution[1] > 0
 
 
 def __assert_position__(pos):

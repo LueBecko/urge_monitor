@@ -2,13 +2,12 @@
 
 from psychopy.iohub import launchHubServer
 import InputDevice
-import visuals
 
 class InputListener:
     '''listener for input device events. Allows registration specific input events/key presses to listen to'''
 
-    def __init__(self, configuration):
-        self.__device = InputDevice.CreateInputDevice(configuration, visuals.getWin())
+    def __init__(self, configuration, window):
+        self.__device = InputDevice.CreateInputDevice(configuration, window)
         self.__isKeyboard__ = str(configuration['device']).lower().startswith('keyboard')
         # prepare keyboard for reading other keys
         self.__keyList__ = []

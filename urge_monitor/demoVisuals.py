@@ -27,9 +27,9 @@ updateurgevalue_continous.increment = 0.01
 
 
 def graphic_main(C, test_id, t):
-    visuals.CreateVisuals(Cmon=C['monitor']['monitor'],
-        Cwin=C['monitor']['window'],
-        Cvis=C['runs'][0]['visuals'])
+    graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
+        C['monitor']['window'],
+        C['runs'][0]['visuals'])
     visuals.annote.AddAnnote(name='ID',
         text=test_id,
         pos=[0, 4],
@@ -47,10 +47,10 @@ def graphic_main(C, test_id, t):
             plotclock.add(plotclock_increment)
 
         visuals.bars.UpdateFGBar(urgevalue)
-        visuals.flip()
+        graphics.flip()
         fc += 1
 
-    visuals.CloseVisuals()
+    del graphics
     return fc
 
 
@@ -351,9 +351,9 @@ logging.info(msg='Test completed - '
 logging.flush()
 
 # begin tests: windowed
-Conf = config.ExperimentConfig('test', 'urge_monitor')
-Conf['window']['fullscr'] = False
-Conf['window']['resolution'] = [1024, 768]
+Conf = config.ExperimentConfig('demoVisuals', '.')
+Conf['monitor']['window']['fullscr'] = False
+Conf['monitor']['window']['resolution'] = [1024, 768]
 
 test_id = 'test1: win'
 fc = graphic_main(Conf, test_id, t)

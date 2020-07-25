@@ -1,5 +1,5 @@
 import unittest
-import helpers
+from . import helpers
 
 class ColorHelpersTest(unittest.TestCase):
 
