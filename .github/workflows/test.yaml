@@ -8,5 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Python Unit Test
-        uses: PrajjawalBanati/Python-actions@0.0.1
+        uses: fylein/python-pytest-github-action@v1
+        with:
+          args: pip3 install -r requirements.txt && pytest 
                     
