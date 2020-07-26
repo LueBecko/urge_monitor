@@ -1,4 +1,5 @@
 cd urge_monitor
 
-C:\"Program Files (x86)"\PsychoPy3\python RunExperiment.py
+"C:\Program Files\PsychoPy3\python.exe" RunExperiment.py
 
+cd ..

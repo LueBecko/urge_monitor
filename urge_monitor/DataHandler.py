@@ -80,8 +80,6 @@ class DataHandler:
     def __gatherInitialInf__(self):
         # gather Infos
         SysInf = psychopy.info.RunTimeInfo(
-            #author='Christian Beck',
-            #version='prototype, 0.1',
             win=False,
             refreshTest=True,
             userProcsDetailed=True,
