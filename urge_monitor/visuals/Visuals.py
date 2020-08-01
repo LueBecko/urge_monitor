@@ -80,6 +80,11 @@ class Visuals:
     def getWindow(self):
         return self.__window
 
-
     def flip(self):
         self.__window.flip()
+
+    def updateUrgeIndicator(self, urgeValue):
+        bars.UpdateFGBar(urgeValue)
+
+    def updateHistoriePlot(self, urgeValue):
+        hist.updateHist(urgeValue)

@@ -174,13 +174,13 @@ def MainLoop(C):
 
             if plotclock.getTime() >= 0.0:  # update plot
                 urgevalue = IL.GetUrge()
-                visuals.hist.updateHist(urgevalue)
+                graphics.updateHistoriePlot(urgevalue)
                 plotclock.add(plotclock_increment)
 
             if frameclock.getTime() >= 0.0:  # draw frame
                 graphics.flip()  # flip first to ensure best frame timing
                 frameclock.add(frameclock_increment)
-                visuals.bars.UpdateFGBar(urgevalue)  # minimal draw lag
+                graphics.updateUrgeIndicator(urgevalue) # minimal draw lag
 
             # abort by experimenter
             if KeyAbort in IL.GetPressedKeys():
@@ -205,8 +205,6 @@ def MainLoop(C):
                 OP.SendPulse()
 
             t = 0.0
-            #frameclock.reset()
-            #plotclock.reset()
             sampleclock.reset()
             rtclock = core.Clock()
             ## Loop in which experiment is performed
@@ -221,13 +219,13 @@ def MainLoop(C):
                     sampleclock.add(sampleclock_increment)
 
                 if plotclock.getTime() >= 0.0:  # update plot
-                    visuals.hist.updateHist(urgevalue)
+                    graphics.updateHistoriePlot(urgevalue)
                     plotclock.add(plotclock_increment)
 
                 if frameclock.getTime() >= 0.0:  # draw frame
                     graphics.flip()  # flip first to ensure best frame timing
                     frameclock.add(frameclock_increment)
-                    visuals.bars.UpdateFGBar(urgevalue)  # minimal draw lag
+                    graphics.updateUrgeIndicator(urgevalue) # minimal draw lag
 
                 # abort by experimenter
                 if KeyAbort in IL.GetPressedKeys():

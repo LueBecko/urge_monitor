@@ -43,10 +43,10 @@ def graphic_main(C, test_id, t):
         urgevalue = updateurgevalue_continous()
 
         if plotclock.getTime() > 0.0:  # update plot
-            visuals.hist.updateHist(urgevalue)
+            graphics.updateHistoriePlot(urgevalue)
             plotclock.add(plotclock_increment)
 
-        visuals.bars.UpdateFGBar(urgevalue)
+        graphics.updateUrgeIndicator(urgevalue)
         graphics.flip()
         fc += 1
 

@@ -144,6 +144,5 @@ def CreateFGBar(win, conf):
 def UpdateFGBar(urgevalue):
     """refresh bar position, redraw happens automatically"""
     global bg_bar, fg_bar
-    #urgevalue_scaled = bg_bar.bg_height * (urgevalue - 0.5)
     fg_bar.setPos(newPos=(bg_bar.pos[0],
         bg_bar.pos[1] + bg_bar.bg_height * (urgevalue - 0.5)))
