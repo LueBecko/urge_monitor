@@ -1,7 +1,4 @@
 # reads config files and validates them
-#
-# TODO:
-#        Remove helpers import
 
 import configparser
 import os
@@ -11,7 +8,7 @@ from serial import (EIGHTBITS, FIVEBITS, PARITY_EVEN, PARITY_MARK, PARITY_NONE,
                     PARITY_ODD, PARITY_SPACE, SEVENBITS, SIXBITS, STOPBITS_ONE,
                     STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO)
 
-from visuals import helpers  # remove this dep
+from visuals import helpers 
 
 
 class InvalidConfigException(BaseException):
@@ -167,9 +164,7 @@ class ExperimentConfig:
         if not __is_numeric_pos__(self.configMon['monitor']['width']):
             raise InvalidConfigException(self.monFile,
                 'monitor width needs to be a positive numerical')
-        if not __is_resolution__(self.configMon['monitor']['resolution']):
-            raise InvalidConfigException(self.monFile,
-                'monitor resolution needs to be a set of 2 positive numericals')
+        helpers.ResolutionValidator().validateResolution(self.configMon['monitor']['resolution'])
         if not 'window' in self.configMon:
             self.configMon['window'] = {}
             warnings.warn('No window section given, it is generated ' +
@@ -190,9 +185,7 @@ class ExperimentConfig:
         if not 'color_space' in self.configMon['window']:
             self.configMon['window']['color_space'] = 'rgb255'
             warnings.warn('missing window color_space. Set to "rgb255".')
-        elif not __is_color_space__(self.configMon['window']['color_space']):
-            raise InvalidConfigException(self.monFile,
-                'window color_space needs to be a valid color space.')
+        helpers.ColorValidator().validateColorSpace(self.configMon['window']['color_space'])
         if not 'col' in self.configMon['window']:
             self.configMon['window']['col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace("rgb255",self.configMon['window']['color_space'], [0,0,0])
         if not 'resolution' in self.configMon['window']:
@@ -200,9 +193,7 @@ class ExperimentConfig:
                 self.configMon['monitor']['resolution'])
             warnings.warn('missing window resolution. ' +
                 'Set to resolution of monitor.')
-        elif not __is_resolution__(self.configMon['window']['resolution']):
-            raise InvalidConfigException(self.monFile,
-                'window resolution needs to be a valid resolution.')
+        helpers.ResolutionValidator().validateResolution(self.configMon['window']['resolution'])
 
     def ReadInputDevice(self):
         # setup
@@ -502,6 +493,7 @@ class ExperimentConfig:
                   'pulse-out_pulse-data must be within [0,255]')
 
     def __ValidateRunConf__(self, conf, filename):
+        colorValidator = helpers.ColorValidator()
         # validate control
         if not 'control' in list(conf.keys()):
             raise InvalidConfigException(filename,
@@ -543,15 +535,11 @@ class ExperimentConfig:
         if not 'col' in list(conf['visuals'].keys()):
             conf['visuals']['col'] = black
             warnings.warn(filename + ': no visuals-col, set to default black')
-        elif not __is_color__[cs](conf['visuals']['col']):
-            raise InvalidConfigException(filename,
-                'visuals-col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['col'])
         if not 'pos' in list(conf['visuals'].keys()):
             conf['visuals']['pos'] = [0, 0]
             warnings.warn(filename + ': no visuals-pos, set to center pos')
-        elif not __is_position__(conf['visuals']['pos']):
-            raise InvalidConfigException(filename,
-                'visuals-pos is not a x,y position pair')
+        helpers.PositionValidator().validatePosition(conf['visuals']['pos'])
         # validate visuals-bg_*
         if not 'bg_height' in list(conf['visuals'].keys()):
             conf['visuals']['bg_height'] = 7
@@ -568,15 +556,11 @@ class ExperimentConfig:
         if not 'bg_col' in list(conf['visuals'].keys()):
             conf['visuals']['bg_col'] = grey
             warnings.warn(filename + ': no visuals-bg_col, set to grey')
-        elif not __is_color__[cs](conf['visuals']['bg_col']):
-            raise InvalidConfigException(filename,
-                'visuals-bg_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['bg_col'])
         if not 'bg_frame_col' in list(conf['visuals'].keys()):
             conf['visuals']['bg_frame_col'] = grey
             warnings.warn(filename + ': no visuals-bg_frame_col, set to grey')
-        elif not __is_color__[cs](conf['visuals']['bg_frame_col']):
-            raise InvalidConfigException(filename,
-                'visuals-bg_frame_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['bg_frame_col'])
         if not 'bg_frame_width' in list(conf['visuals'].keys()):
             conf['visuals']['bg_frame_width'] = 2
             warnings.warn(filename + ': no visuals-bg_frame_width, set to 2pt')
@@ -599,16 +583,12 @@ class ExperimentConfig:
         if not 'fg_col' in list(conf['visuals'].keys()):
             conf['visuals']['fg_col'] = darkgrey
             warnings.warn(filename + ': no visuals-fg_col, set to dark grey')
-        elif not __is_color__[cs](conf['visuals']['fg_col']):
-            raise InvalidConfigException(filename,
-                'visuals-fg_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['fg_col'])
         if not 'fg_frame_col' in list(conf['visuals'].keys()):
             conf['visuals']['fg_frame_col'] = darkgrey
             warnings.warn(filename + ': no visuals-fg_frame_col, ' +
             'set to dark grey')
-        elif not __is_color__[cs](conf['visuals']['fg_frame_col']):
-            raise InvalidConfigException(filename,
-                'visuals-fg_frame_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['fg_frame_col'])
         if not 'fg_frame_width' in list(conf['visuals'].keys()):
             conf['visuals']['fg_frame_width'] = 2
             warnings.warn(filename + ': no visuals-fg_frame_width, set to 2pt')
@@ -649,9 +629,7 @@ class ExperimentConfig:
         if not 'hist_col' in list(conf['visuals'].keys()):
             conf['visuals']['hist_col'] = white
             warnings.warn(filename + ': no visuals-hist_col, set to white')
-        elif not __is_color__[cs](conf['visuals']['hist_col']):
-            raise InvalidConfigException(filename,
-                'visuals-hist_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['hist_col'])
         if not 'hist_side' in list(conf['visuals'].keys()):
             conf['visuals']['hist_side'] = 'both'
             warnings.warn(filename + ': no visuals-hist_side, set to both')
@@ -680,15 +658,11 @@ class ExperimentConfig:
         if not 'scales_col' in list(conf['visuals'].keys()):
             conf['visuals']['scales_col'] = white
             warnings.warn(filename + ': no visuals-scales_col, set to white')
-        elif not __is_color__[cs](conf['visuals']['scales_col']):
-            raise InvalidConfigException(filename,
-                'visuals-scales_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['scales_col'])
         if not 'scales_text_col' in list(conf['visuals'].keys()):
             conf['visuals']['scales_text_col'] = white
             warnings.warn(filename + ':no visuals-scales_text_col set to white')
-        elif not __is_color__[cs](conf['visuals']['scales_text_col']):
-            raise InvalidConfigException(filename,
-                'visuals-scales_text_col not a correct color, check colorspace')
+        colorValidator.validateColor(cs, conf['visuals']['scales_text_col'])
         # validate visuals-scales_text_* lists
         if not 'scales_text' in list(conf['visuals'].keys()):
             conf['visuals']['scales_text'] = []
@@ -790,10 +764,8 @@ class ExperimentConfig:
         if len(conf['visuals']['apos']) != l:
             raise InvalidConfigException(filename,
                 'visuals-apos length mismatch with aname')
-        if not all([__is_position__(entry)
-            for entry in conf['visuals']['apos']]):
-                raise InvalidConfigException(filename,
-                    'visuals-apos must be a list of x,y positions')
+        for entry in conf['visuals']['apos']:
+            helpers.PositionValidator().validatePosition(entry)
         if not 'asize' in list(conf['visuals'].keys()):
             conf['visuals']['asize'] = [10] * l
             warnings.warn(filename + ': visuals-asize missing,' +
@@ -821,10 +793,8 @@ class ExperimentConfig:
         if len(conf['visuals']['acol']) != l:
             raise InvalidConfigException(filename,
                 'visuals-acol length mismatch with aname')
-        if not all([__is_color__[cs](entry)
-            for entry in conf['visuals']['acol']]):
-                raise InvalidConfigException(filename,
-                    'visuals-acol must be a list of color values')
+        for entry in conf['visuals']['acol']:
+            colorValidator.validateColor(cs, entry)
 
     def ReadDefaults(self):
         # setup
@@ -881,7 +851,6 @@ class ExperimentConfig:
 
 
 ##### HELPER FUNCTIONS #####
-# TODO: extract into config validation module and test these methods
 def __is_numeric_pos__(n):
     test = isinstance(n, (int, float))
     if not test:
@@ -896,99 +865,3 @@ def __is_01interval__(n):
         return test
     test = test and n >= 0 and n <= 1
     return test
-
-
-def __is_resolution__(res):
-    test = isinstance(res, (list, tuple))
-    if not test:
-        return test
-    test = test and len(res) == 2
-    if not test:
-        return test
-    test = test and isinstance(res[0], int)
-    test = test and isinstance(res[1], int)
-    if not test:
-        return test
-    test = test and res[0] > 0
-    test = test and res[1] > 0
-    return test
-
-
-def __is_position__(pos):
-    test = isinstance(pos, (list, tuple))
-    if not test:
-        return test
-    test = test and len(pos) == 2
-    if not test:
-        return test
-    test = test and isinstance(pos[0], (int, float))
-    test = test and isinstance(pos[1], (int, float))
-    return test
-
-
-def __is_color_space__(cs):
-    test = isinstance(cs, str)
-    if not test:
-        return test
-    test = test and cs in ['rgb', 'rgb255', 'hsv']
-    return test
-
-
-def __is_color_rgb255__(col):
-    test = isinstance(col, (list, tuple))
-    if not test:
-        return test
-    test = test and len(col) == 3
-    if not test:
-        return test
-    test = test and isinstance(col[0], (int, float))
-    test = test and isinstance(col[1], (int, float))
-    test = test and isinstance(col[2], (int, float))
-    if not test:
-        return test
-    test = test and col[0] >= 0 and col[0] <= 255
-    test = test and col[1] >= 0 and col[1] <= 255
-    test = test and col[2] >= 0 and col[2] <= 255
-    return test
-
-
-def __is_color_rgb__(col):
-    test = isinstance(col, (list, tuple))
-    if not test:
-        return test
-    test = test and len(col) == 3
-    if not test:
-        return test
-    test = test and isinstance(col[0], (int, float))
-    test = test and isinstance(col[1], (int, float))
-    test = test and isinstance(col[2], (int, float))
-    if not test:
-        return test
-    test = test and col[0] >= -1 and col[0] <= 1
-    test = test and col[1] >= -1 and col[1] <= 1
-    test = test and col[2] >= -1 and col[2] <= 1
-    return test
-
-
-def __is_color_hsv__(col):
-    test = isinstance(col, (list, tuple))
-    if not test:
-        return test
-    test = test and len(col) == 3
-    if not test:
-        return test
-    test = test and isinstance(col[0], (int, float))
-    test = test and isinstance(col[1], (int, float))
-    test = test and isinstance(col[2], (int, float))
-    if not test:
-        return test
-    test = test and col[0] >= 0 and col[0] <= 360  # hue
-    test = test and col[1] >= 0 and col[1] <= 1  # saturation
-    test = test and col[2] >= 0 and col[2] <= 1  # value
-    return test
-
-
-# TODO: make this into a method
-__is_color__ = {'rgb': lambda col: __is_color_rgb__(col),
-                'rgb255': lambda col: __is_color_rgb255__(col),
-                'hsv': lambda col: __is_color_hsv__(col)}

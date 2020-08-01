@@ -2,6 +2,7 @@
 
 
 class ResolutionValidator:
+    '''used to validate Resolution Values'''
     def validateResolution(self, resolution):
         assert isinstance(resolution, (list, tuple))
         assert len(resolution) == 2
@@ -10,15 +11,16 @@ class ResolutionValidator:
         assert resolution[0] > 0
         assert resolution[1] > 0
 
-
-def __assert_position__(pos):
-    assert isinstance(pos, (list, tuple))
-    assert len(pos) == 2
-    assert isinstance(pos[0], (int, float))
-    assert isinstance(pos[1], (int, float))
-
+class PositionValidator:
+    '''used to validate Position Values'''
+    def validatePosition(self, position):
+        assert isinstance(position, (list, tuple))
+        assert len(position) == 2
+        assert isinstance(position[0], (int, float))
+        assert isinstance(position[1], (int, float))
 
 class ColorValidator:
+    '''used to validate Color Space and Color Values'''
     def __assert_color_rgb255__(self, col):
         assert isinstance(col, (list, tuple))
         assert len(col) == 3
@@ -63,6 +65,7 @@ class ColorValidator:
 
 
 class ColorspaceTransformator:
+    '''transforms colors from one color space to another (only supported colorspaces)'''
     def __rgb_to_rgb255(self, col):
         return tuple([int(255 * (v + 1.0) / 2.0) for v in col])
 

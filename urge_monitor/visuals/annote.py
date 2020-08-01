@@ -13,7 +13,7 @@ def AddAnnote(name, text, pos, size, col):
     # asserts
     assert isinstance(name, str)
     assert isinstance(text, str)
-    helpers.__assert_position__(pos)
+    helpers.PositionValidator().validatePosition(pos)
     assert isinstance(size, (float, int))
     validator = helpers.ColorValidator()
     validator.validateColor(__win.colorSpace, col)

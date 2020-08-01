@@ -13,7 +13,7 @@ def CreateBGBar(win, conf):
     global bg_bar
     # test parameters: pos
     if 'pos' in conf:
-        helpers.__assert_position__(conf['pos'])
+        helpers.PositionValidator().validatePosition(conf['pos'])
     else:
         conf['pos'] = [0.0, 0.0]
 
@@ -80,7 +80,7 @@ def CreateFGBar(win, conf):
     global fg_bar
     # test parameters: pos
     if 'pos' in conf:
-        helpers.__assert_position__(conf['pos'])
+        helpers.PositionValidator().validatePosition(conf['pos'])
     else:
         conf['pos'] = [0.0, 0.0]
 
