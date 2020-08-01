@@ -1,12 +1,14 @@
 from psychopy import visual, monitors, logging
 
-from . import helpers, bars, hist, annote, scale
+from . import helpers, hist, annote, scale
+from .UrgeIndicator import UrgeIndicator
 
 class Visuals:
     '''handles the lifecycle of all visual objects needed for presentation of the experiment'''
 
     __monitor: None
     __window: None
+    __urgeIndicator: None
 
     def __init__(self, configMonitor, configWindow, configVisualElements):
         self.__monitor = self.__createMonitor(configMonitor)
@@ -16,8 +18,6 @@ class Visuals:
     def __del__(self):
         if (self.getWindow() is not None):
             self.getWindow().close()
-        bars.bg_bar = None
-        bars.fg_bar = None
         hist.histl = []
         hist.histr = []
         hist.updateHist = lambda urgevalue: None
@@ -66,14 +66,15 @@ class Visuals:
         # set bg color
         helpers.ColorValidator().validateColor(colorSpace, configVisualElements['col'])
         self.getWindow().setColor(configVisualElements['col'])
-        # start doing important stuff
+
         scale.CreateScale(self.getWindow(), configVisualElements)
-        bars.CreateBGBar(self.getWindow(), configVisualElements)
-        # optimize draw order (it's a bit of a dirty hack)
+        self.__urgeIndicator = UrgeIndicator(self.getWindow(), configVisualElements)
+        # fix draw order (dirty)
         for i in range(len(scale.texts)):
             scale.texts[i].setAutoDraw(False)
             scale.texts[i].setAutoDraw(True)
-        bars.CreateFGBar(self.getWindow(), configVisualElements)
+        self.__urgeIndicator.fixDrawOrder()
+
         hist.CreateHist(self.getWindow(), configVisualElements)
         annote.CreateAnnotes(self.getWindow(), configVisualElements)
 
@@ -84,7 +85,7 @@ class Visuals:
         self.__window.flip()
 
     def updateUrgeIndicator(self, urgeValue):
-        bars.UpdateFGBar(urgeValue)
+        self.__urgeIndicator.updateUrge(urgeValue)
 
     def updateHistoriePlot(self, urgeValue):
         hist.updateHist(urgeValue)
