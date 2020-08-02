@@ -1,110 +1,106 @@
-# -*- coding: utf-8 -*-
-
 from psychopy import visual
 from . import helpers
+from .ConfigurableVisualElement import ConfigurableVisualElement
 
-class UrgeIndicator:
+class UrgeIndicator(ConfigurableVisualElement):
     '''manages the lifecycle of the urge indicator bar'''
     __backgroundBar: None
     __indicatorBar: None
+    __window: None
+    __defaultconfig: {}
 
     def __init__(self, window, visualConfig):
-        self.__validateVisualConfig(window, visualConfig)
-        self.__backgroundBar = self.__createBackgroundBar(window, visualConfig)
-        self.__indicatorBar = self.__createIndicatorBar(window, visualConfig)
+        # TODO: move scales and scale annotation in this class (or maybe just controll them from this class)
+        super().__init__(visualConfig)
+        self.__window = window
+        self.__createDefaultConfigurationValues()
+        self.validateConfiguration()
+        self.__backgroundBar = self.__createBackgroundBar()
+        self.__indicatorBar = self.__createIndicatorBar()
 
-    def __validateVisualConfig(self, window, visualConfig):
+    def __createDefaultConfigurationValues(self):
+        colorspaceTransformator = helpers.ColorspaceTransformator()
+        grey = colorspaceTransformator.colorspace_to_colorspace('rgb255', self.__window.colorSpace, [127, 127, 127])
+        darkgrey = colorspaceTransformator.colorspace_to_colorspace('rgb255', self.__window.colorSpace, [95, 95, 95])
+        self.__defaultConfig = {'pos': [0.0, 0.0],
+            'bg_height': 7,
+            'bg_width': 1,
+            'bg_col': grey,
+            'bg_frame_col': grey,
+            'bg_frame_width': 2,
+            'fg_height': 0.5,
+            'fg_width': 1.25,
+            'fg_col': darkgrey,
+            'fg_frame_col': darkgrey,
+            'fg_frame_width': 2,
+            'fg_opacity': 1}
+
+    def validateConfiguration(self):
         colorValidator = helpers.ColorValidator()
         positionValidator = helpers.PositionValidator()
-        if 'pos' in visualConfig:
-            positionValidator.validatePosition(visualConfig['pos'])
+        positionValidator.validatePosition(self.getConfigurationValue('pos'))
         # validate background bar config
-        if 'bg_height' in visualConfig:
-            assert isinstance(visualConfig['bg_height'], (int, float))
-        if 'bg_width' in visualConfig:
-            assert isinstance(visualConfig['bg_width'], (int, float))
-        if 'bg_col' in visualConfig:
-            colorValidator.validateColor(window.colorSpace, visualConfig['bg_col'])
-        if 'bg_frame_col' in visualConfig:
-            colorValidator.validateColor(window.colorSpace, visualConfig['bg_frame_col'])
-        if 'bg_frame_width' in visualConfig:
-            assert isinstance(visualConfig['bg_frame_width'], int)
+        assert isinstance(self.getConfigurationValue('bg_height'), (int, float))
+        assert isinstance(self.getConfigurationValue('bg_width'), (int, float))
+        colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('bg_col'))
+        colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('bg_frame_col'))
+        assert isinstance(self.getConfigurationValue('bg_frame_width'), int)
         # validate foreground bar config
-        if 'fg_height' in visualConfig:
-            assert isinstance(visualConfig['fg_height'], (int, float))
-        if 'fg_width' in visualConfig:
-            assert isinstance(visualConfig['fg_width'], (int, float))
-        if 'fg_col' in visualConfig:
-            colorValidator.validateColor(window.colorSpace, visualConfig['fg_col'])
-        if 'fg_frame_col' in visualConfig:
-            colorValidator.validateColor(window.colorSpace, visualConfig['fg_frame_col'])
-        if 'fg_frame_width' in visualConfig:
-            assert isinstance(visualConfig['fg_frame_width'], int)
-        if 'fg_opacity' in visualConfig:
-            assert isinstance(visualConfig['fg_opacity'], (int, float))
-            assert visualConfig['fg_opacity'] >= 0
-            assert visualConfig['fg_opacity'] <= 1
+        assert isinstance(self.getConfigurationValue('fg_height'), (int, float))
+        assert isinstance(self.getConfigurationValue('fg_width'), (int, float))
+        colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('fg_col'))
+        colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('fg_frame_col'))
+        assert isinstance(self.getConfigurationValue('fg_frame_width'), int)
+        assert isinstance(self.getConfigurationValue('fg_opacity'), (int, float))
+        assert self.getConfigurationValue('fg_opacity') >= 0
+        assert self.getConfigurationValue('fg_opacity') <= 1
 
-    def __createBackgroundBar(self, window, visualConfig):
-        # extract config data and fill with defaults if anything is missing
-        position = visualConfig.get('pos', [0.0, 0.0])
-        bg_height = visualConfig.get('bg_height', 7)
-        bg_width = visualConfig.get('bg_width', 1)
+    def getConfigurationItemDefault(self, item):
+        return self.__defaultConfig.get(item)
 
-        grey = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', window.colorSpace, [127, 127, 127])
-        bg_col = visualConfig.get('bg_col', grey)
-        bg_frame_col = visualConfig.get('bg_frame_col', grey)
-        bg_frame_width = visualConfig.get('bg_frame_width', 2)
+    def __createBackgroundBar(self):
+        bg_height = self.getConfigurationValue('bg_height')
+        bg_width = self.getConfigurationValue('bg_width')
 
         # create bg_bar object
-        bg_bar = visual.ShapeStim(window,
+        bg_bar = visual.ShapeStim(self.__window,
                 units='deg',
-                fillColorSpace=window.colorSpace,
-                lineColorSpace=window.colorSpace,
-                fillColor=bg_col,
-                lineColor=bg_frame_col,
-                lineWidth=bg_frame_width,
+                fillColorSpace=self.__window.colorSpace,
+                lineColorSpace=self.__window.colorSpace,
+                fillColor=self.getConfigurationValue('bg_col'),
+                lineColor=self.getConfigurationValue('bg_frame_col'),
+                lineWidth=self.getConfigurationValue('bg_frame_width'),
                 closeShape=True,
-                pos=position,
+                pos=self.getConfigurationValue('pos'),
                 interpolate=False,
                 opacity=1,
                 autoLog=False,
                 vertices=self.__createVertices(bg_width, bg_height))
 
-        # finish
         bg_bar.bg_height = bg_height # make bg_height available for update methode
         bg_bar.draw()
         bg_bar.setAutoDraw(True)
         return bg_bar
 
-    def __createIndicatorBar(self, window, visualConfig):
-        # extract config data and fill with defaults if anything is missing
-        position = visualConfig.get('pos', [0.0, 0.0])
-        fg_height = visualConfig.get('fg_height', 0.5)
-        fg_width = visualConfig.get('fg_width', 1.25)
-
-        darkgrey = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', window.colorSpace, [95, 95, 95])
-        fg_col = visualConfig.get('fg_col', darkgrey)
-        fg_frame_col = visualConfig.get('fg_frame_col', darkgrey)
-        fg_frame_width = visualConfig.get('fg_frame_width', 2)
-        fg_opacity = visualConfig.get('fg_opacity', 1)
+    def __createIndicatorBar(self):
+        fg_height = self.getConfigurationValue('fg_height')
+        fg_width = self.getConfigurationValue('fg_width')
 
         # create fg_bar object
-        fg_bar = visual.ShapeStim(window,
+        fg_bar = visual.ShapeStim(self.__window,
                 units='deg',
-                fillColorSpace=window.colorSpace,
-                lineColorSpace=window.colorSpace,
-                fillColor=fg_col,
-                lineColor=fg_frame_col,
-                lineWidth=fg_frame_width,
+                fillColorSpace=self.__window.colorSpace,
+                lineColorSpace=self.__window.colorSpace,
+                fillColor=self.getConfigurationValue('fg_col'),
+                lineColor=self.getConfigurationValue('fg_frame_col'),
+                lineWidth=self.getConfigurationValue('fg_frame_width'),
                 closeShape=True,
-                pos=position,
+                pos=self.getConfigurationValue('pos'),
                 interpolate=False,
-                opacity=fg_opacity,
+                opacity=self.getConfigurationValue('fg_opacity'),
                 autoLog=False,
                 vertices=self.__createVertices(fg_width, fg_height))
 
-        # finish
         fg_bar.draw()
         return fg_bar
 
@@ -121,4 +117,5 @@ class UrgeIndicator:
 
     def fixDrawOrder(self):
         '''indicator must always be above all other non-annotation elements'''
+        # TODO: this method is obsolete when scales are also managed by this class
         self.__indicatorBar.setAutoDraw(True)

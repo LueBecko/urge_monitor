@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# TODO: Make this a class that is called by Visuals
 from psychopy import visual
 from . import helpers
 

@@ -30,6 +30,7 @@ class Visuals:
         scale.texts = []
 
     def __createMonitor(self, configMonitor):
+        # TODO: separate validation and creation and test validation
         # asserts
         assert isinstance(configMonitor['name'], str)
         assert isinstance(configMonitor['distance'], (int, float))
@@ -44,6 +45,7 @@ class Visuals:
         return __mon
 
     def __createWindow(self, configWindow):
+        # TODO: separate validation and creation and test validation
         # asserts
         helpers.ColorValidator().validateColorSpace(configWindow['color_space'])
         helpers.ResolutionValidator().validateResolution(configWindow['resolution'])

@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# TODO: split in several single class files and move them to a sub package validation
 
 class ResolutionValidator:
     '''used to validate Resolution Values'''
