@@ -1,20 +1,19 @@
 from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
+from .validators import PositiveNumericValueValidator
 
 class UrgeIndicator(ConfigurableVisualElement):
-    '''manages the lifecycle of the urge indicator bar'''
+    '''manages the lifecycle of the urge indicator bars'''
     __backgroundBar: None
     __indicatorBar: None
     __window: None
-    __defaultconfig: {}
 
     def __init__(self, window, visualConfig):
         # TODO: move scales and scale annotation in this class (or maybe just controll them from this class)
-        super().__init__(visualConfig)
         self.__window = window
         self.__createDefaultConfigurationValues()
-        self.validateConfiguration()
+        super().__init__(visualConfig)
         self.__backgroundBar = self.__createBackgroundBar()
         self.__indicatorBar = self.__createIndicatorBar()
 
@@ -35,28 +34,29 @@ class UrgeIndicator(ConfigurableVisualElement):
             'fg_frame_width': 2,
             'fg_opacity': 1}
 
+    def getConfigurationItemDefault(self, item):
+        return self.__defaultConfig.get(item)
+
     def validateConfiguration(self):
+        positiveNumericValidator = PositiveNumericValueValidator.PositiveNumericValueValidator()
         colorValidator = helpers.ColorValidator()
         positionValidator = helpers.PositionValidator()
         positionValidator.validatePosition(self.getConfigurationValue('pos'))
         # validate background bar config
-        assert isinstance(self.getConfigurationValue('bg_height'), (int, float))
-        assert isinstance(self.getConfigurationValue('bg_width'), (int, float))
+        positiveNumericValidator.validate(self.getConfigurationValue('bg_height'))
+        positiveNumericValidator.validate(self.getConfigurationValue('bg_width'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('bg_col'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('bg_frame_col'))
-        assert isinstance(self.getConfigurationValue('bg_frame_width'), int)
+        positiveNumericValidator.validate(self.getConfigurationValue('bg_frame_width'))
         # validate foreground bar config
-        assert isinstance(self.getConfigurationValue('fg_height'), (int, float))
-        assert isinstance(self.getConfigurationValue('fg_width'), (int, float))
+        positiveNumericValidator.validate(self.getConfigurationValue('fg_height'))
+        positiveNumericValidator.validate(self.getConfigurationValue('fg_width'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('fg_col'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('fg_frame_col'))
-        assert isinstance(self.getConfigurationValue('fg_frame_width'), int)
+        positiveNumericValidator.validate(self.getConfigurationValue('fg_frame_width'))
         assert isinstance(self.getConfigurationValue('fg_opacity'), (int, float))
         assert self.getConfigurationValue('fg_opacity') >= 0
         assert self.getConfigurationValue('fg_opacity') <= 1
-
-    def getConfigurationItemDefault(self, item):
-        return self.__defaultConfig.get(item)
 
     def __createBackgroundBar(self):
         bg_height = self.getConfigurationValue('bg_height')

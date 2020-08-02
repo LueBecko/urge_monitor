@@ -20,6 +20,7 @@ class PositionValidator:
 
 class ColorValidator:
     '''used to validate Color Space and Color Values'''
+    # TODO: split in color validator and colorspace validator
     def __assert_color_rgb255__(self, col):
         assert isinstance(col, (list, tuple))
         assert len(col) == 3

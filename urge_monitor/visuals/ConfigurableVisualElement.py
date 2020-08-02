@@ -8,6 +8,7 @@ class ConfigurableVisualElement(ABC):
     def __init__(self, configuration):
         assert isinstance(configuration, dict)
         self.__configuration = configuration
+        self.validateConfiguration()
 
     def getConfigurationValue(self, item):
         '''extracts the configuration item value from given configuration and uses default values if not present'''
