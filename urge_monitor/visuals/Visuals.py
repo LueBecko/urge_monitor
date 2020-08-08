@@ -5,6 +5,7 @@ from .UrgeIndicator import UrgeIndicator
 from .UrgeIndicatorScales import UrgeIndicatorScales
 from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
 from .validators.ResolutionValidator import ResolutionValidator
+from .validators.ColorSpaceValidator import ColorSpaceValidator
 
 class Visuals:
     '''handles the lifecycle of all visual objects needed for presentation of the experiment'''
@@ -48,7 +49,7 @@ class Visuals:
     def __createWindow(self, configWindow):
         # TODO: separate validation and creation and test validation
         # asserts
-        helpers.ColorValidator().validateColorSpace(configWindow['color_space'])
+        ColorSpaceValidator().validate(configWindow['color_space'])
         ResolutionValidator().validate(configWindow['resolution'])
         assert isinstance(configWindow['fullscr'], bool)
         # create win

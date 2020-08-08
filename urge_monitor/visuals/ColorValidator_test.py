@@ -3,21 +3,6 @@ from . import helpers
 
 class ColorValidatorTest(unittest.TestCase):
 
-    def test_validateColorSpace_withInvalidColorSpace_raises(self):
-        validator = helpers.ColorValidator()
-        with self.assertRaises(AssertionError): validator.validateColorSpace(None)
-        with self.assertRaises(AssertionError): validator.validateColorSpace(7)
-        with self.assertRaises(AssertionError): validator.validateColorSpace('None')
-
-    def test_validateColorSpace_withValidColorSpace_passes(self):
-        validator = helpers.ColorValidator()
-        validator.validateColorSpace('rgb')
-        validator.validateColorSpace('rgb255')
-        validator.validateColorSpace('hsv')
-        validator.validateColorSpace('RGB')
-        validator.validateColorSpace('rGb255')
-        validator.validateColorSpace('HsV')
-
     def test_validateColor_withInvalidColorSpace_raises(self):
         validator = helpers.ColorValidator()
         with self.assertRaises(AssertionError): validator.validateColor(None, (0,0,0))

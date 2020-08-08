@@ -1,8 +1,12 @@
+from .validators.ColorSpaceValidator import ColorSpaceValidator
+
 # TODO: split in several single class files and move them to a sub package validation
 
 class ColorValidator:
-    '''used to validate Color Space and Color Values'''
-    # TODO: split in color validator and colorspace validator
+    def __init__(self):
+        self.__colorSpaceValidator = ColorSpaceValidator()
+
+    '''used to validate Color Values'''
     def __assert_color_rgb255__(self, col):
         assert isinstance(col, (list, tuple))
         assert len(col) == 3
@@ -38,13 +42,8 @@ class ColorValidator:
                     'hsv': lambda self, col: self.__assert_color_hsv__(col)}
 
     def validateColor(self, colorSpace, colorValue):
-        self.validateColorSpace(colorSpace)
+        self.__colorSpaceValidator.validate(colorSpace)
         self.__validations[colorSpace.lower()](self, colorValue)
-
-    def validateColorSpace(self, colorSpace):
-        assert isinstance(colorSpace, str)
-        assert colorSpace.lower() in ['rgb', 'rgb255', 'hsv']
-
 
 class ColorspaceTransformator:
     '''transforms colors from one color space to another (only supported colorspaces)'''
@@ -148,10 +147,11 @@ class ColorspaceTransformator:
             ('hsv','rgb255'): lambda self, col: self.__hsv_to_rgb255(col),
             ('hsv','hsv'): lambda self, col: col }
 
-    __validator = ColorValidator()
+    __colorValidator = ColorValidator()
+    __colorSpaceValidator = ColorSpaceValidator()
 
     def colorspace_to_colorspace(self, sourceColorSpace, targetColorSpace, colorValue):
-        self.__validator.validateColor(sourceColorSpace, colorValue)
-        self.__validator.validateColorSpace(targetColorSpace)
+        self.__colorValidator.validateColor(sourceColorSpace, colorValue)
+        self.__colorSpaceValidator.validate(targetColorSpace)
         return self.__transformers[(sourceColorSpace,targetColorSpace)](self, colorValue)
     

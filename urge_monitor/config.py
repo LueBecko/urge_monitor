@@ -11,6 +11,7 @@ from serial import (EIGHTBITS, FIVEBITS, PARITY_EVEN, PARITY_MARK, PARITY_NONE,
 from visuals import helpers 
 from visuals.validators.ResolutionValidator import ResolutionValidator
 from visuals.validators.PositionValidator import PositionValidator
+from visuals.validators.ColorSpaceValidator import ColorSpaceValidator
 
 class InvalidConfigException(BaseException):
     '''Exception indicating that some cofig is not setup correctly'''
@@ -186,7 +187,7 @@ class ExperimentConfig:
         if not 'color_space' in self.configMon['window']:
             self.configMon['window']['color_space'] = 'rgb255'
             warnings.warn('missing window color_space. Set to "rgb255".')
-        helpers.ColorValidator().validateColorSpace(self.configMon['window']['color_space'])
+        ColorSpaceValidator().validate(self.configMon['window']['color_space'])
         if not 'col' in self.configMon['window']:
             self.configMon['window']['col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace("rgb255",self.configMon['window']['color_space'], [0,0,0])
         if not 'resolution' in self.configMon['window']:

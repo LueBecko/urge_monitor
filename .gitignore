@@ -1,6 +1,7 @@
 # python support files
 **/__pycache__/*
 **/*.pyc
+.coverage
 
 # ignore latex intermediate files
 documentation/*.aux
