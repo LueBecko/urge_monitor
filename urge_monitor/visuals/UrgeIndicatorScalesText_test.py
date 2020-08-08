@@ -99,15 +99,11 @@ class UrgeIndicatorScalesTextTest(unittest.TestCase):
         with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
         self.config['scales_widthl'] = -1
         with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
-        self.config['scales_widthl'] = 0.0
-        with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
 
     def test_validateConfiguration_withInvalidScalesWidthRight_raisesError(self):
         self.config['scales_widthr'] = 'invalid'
         with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
         self.config['scales_widthr'] = -1
-        with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
-        self.config['scales_widthr'] = 0.0
         with self.assertRaises(AssertionError): UrgeIndicatorScalesText(self.window, self.config)
 
     def test_validateConfiguration_withInvalidScalesText_raisesError(self):

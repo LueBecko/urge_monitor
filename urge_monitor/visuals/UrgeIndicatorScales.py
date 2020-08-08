@@ -2,6 +2,7 @@ from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
 from .validators import PositiveNumericValueValidator
+from .validators import NotNegativeNumericValueValidator
 
 class UrgeIndicatorScales(ConfigurableVisualElement):
     '''manages the lifecycle of the scales of the urge indicator'''
@@ -32,13 +33,14 @@ class UrgeIndicatorScales(ConfigurableVisualElement):
 
     def validateConfiguration(self):
         positiveNumericValidator = PositiveNumericValueValidator.PositiveNumericValueValidator()
+        notNegativeNumericValidator = NotNegativeNumericValueValidator.NotNegativeNumericValueValidator()
         colorValidator = helpers.ColorValidator()
         positionValidator = helpers.PositionValidator()
         positionValidator.validatePosition(self.getConfigurationValue('pos'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('scales_col'))
         positiveNumericValidator.validate(self.getConfigurationValue('scales_thickness'))
-        positiveNumericValidator.validate(self.getConfigurationValue('scales_widthl'))
-        positiveNumericValidator.validate(self.getConfigurationValue('scales_widthr'))
+        notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthl'))
+        notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthr'))
         positiveNumericValidator.validate(self.getConfigurationValue('bg_width'))
         positiveNumericValidator.validate(self.getConfigurationValue('bg_height'))
         assert isinstance(self.getConfigurationValue('scales_text'), (list, tuple))

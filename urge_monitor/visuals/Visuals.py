@@ -1,7 +1,9 @@
 from psychopy import visual, monitors, logging
 
-from . import helpers, hist, annote, scale
+from . import helpers, hist, annote
 from .UrgeIndicator import UrgeIndicator
+from .UrgeIndicatorScales import UrgeIndicatorScales
+from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
 
 class Visuals:
     '''handles the lifecycle of all visual objects needed for presentation of the experiment'''
@@ -26,8 +28,6 @@ class Visuals:
         hist.vertical_max = 0
         annote.__win = None
         annote.drawable = {}
-        scale.lines = []
-        scale.texts = []
 
     def __createMonitor(self, configMonitor):
         # TODO: separate validation and creation and test validation
@@ -69,13 +69,7 @@ class Visuals:
         helpers.ColorValidator().validateColor(colorSpace, configVisualElements['col'])
         self.getWindow().setColor(configVisualElements['col'])
 
-        scale.CreateScale(self.getWindow(), configVisualElements)
         self.__urgeIndicator = UrgeIndicator(self.getWindow(), configVisualElements)
-        # fix draw order (dirty)
-        for i in range(len(scale.texts)):
-            scale.texts[i].setAutoDraw(False)
-            scale.texts[i].setAutoDraw(True)
-        self.__urgeIndicator.fixDrawOrder()
 
         hist.CreateHist(self.getWindow(), configVisualElements)
         annote.CreateAnnotes(self.getWindow(), configVisualElements)

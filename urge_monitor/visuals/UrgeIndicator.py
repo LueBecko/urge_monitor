@@ -2,19 +2,24 @@ from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
 from .validators import PositiveNumericValueValidator
+from .UrgeIndicatorScales import UrgeIndicatorScales
+from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
 
 class UrgeIndicator(ConfigurableVisualElement):
     '''manages the lifecycle of the urge indicator bars'''
     __backgroundBar: None
     __indicatorBar: None
     __window: None
+    __urgeIndicatorScales: None
+    __urgeIndicatorScalesText: None
 
     def __init__(self, window, visualConfig):
-        # TODO: move scales and scale annotation in this class (or maybe just controll them from this class)
         self.__window = window
         self.__createDefaultConfigurationValues()
         super().__init__(visualConfig)
+        self.__urgeIndicatorScales = UrgeIndicatorScales(self.__window, visualConfig)
         self.__backgroundBar = self.__createBackgroundBar()
+        self.__urgeIndicatorScalesText = UrgeIndicatorScalesText(self.__window, visualConfig)
         self.__indicatorBar = self.__createIndicatorBar()
 
     def __createDefaultConfigurationValues(self):
@@ -102,6 +107,7 @@ class UrgeIndicator(ConfigurableVisualElement):
                 vertices=self.__createVertices(fg_width, fg_height))
 
         fg_bar.draw()
+        fg_bar.setAutoDraw(True)
         return fg_bar
 
     def __createVertices(self, width, height):
@@ -114,8 +120,3 @@ class UrgeIndicator(ConfigurableVisualElement):
         """refresh indicator position, redraw happens automatically"""
         self.__indicatorBar.setPos(newPos=(self.__backgroundBar.pos[0],
             self.__backgroundBar.pos[1] + self.__backgroundBar.bg_height * (urgeValue - 0.5)))
-
-    def fixDrawOrder(self):
-        '''indicator must always be above all other non-annotation elements'''
-        # TODO: this method is obsolete when scales are also managed by this class
-        self.__indicatorBar.setAutoDraw(True)

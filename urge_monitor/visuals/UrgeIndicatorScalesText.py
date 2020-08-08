@@ -2,6 +2,7 @@ from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
 from .validators import PositiveNumericValueValidator
+from .validators import NotNegativeNumericValueValidator
 
 class UrgeIndicatorScalesText(ConfigurableVisualElement):
     '''manages the lifecycle of the scale annotations of the urge indicator'''
@@ -33,19 +34,20 @@ class UrgeIndicatorScalesText(ConfigurableVisualElement):
 
     def validateConfiguration(self):
         positiveNumericValidator = PositiveNumericValueValidator.PositiveNumericValueValidator()
+        notNegativeNumericValidator = NotNegativeNumericValueValidator.NotNegativeNumericValueValidator()
         colorValidator = helpers.ColorValidator()
         positionValidator = helpers.PositionValidator()
         positionValidator.validatePosition(self.getConfigurationValue('pos'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('scales_text_col'))
-        positiveNumericValidator.validate(self.getConfigurationValue('scales_widthl'))
-        positiveNumericValidator.validate(self.getConfigurationValue('scales_widthr'))
+        notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthl'))
+        notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthr'))
         positiveNumericValidator.validate(self.getConfigurationValue('bg_width'))
         positiveNumericValidator.validate(self.getConfigurationValue('bg_height'))
         assert isinstance(self.getConfigurationValue('scales_text'), (list, tuple))
         assert all([isinstance(text, str) for text in self.getConfigurationValue('scales_text')])
 
     def createScaleTexts(self):
-        # TODO: this code needs tests
+        # TODO: this code needs tests and probably some refactoring (position computation)
         position = self.getConfigurationValue('pos')
         numberOfScales = len(self.getConfigurationValue('scales_text'))
         if numberOfScales == 1:
