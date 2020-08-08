@@ -1,7 +1,7 @@
 from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
-from .validators import PositiveNumericValueValidator
+from .validators import PositiveNumericValueValidator, PositionValidator
 from .UrgeIndicatorScales import UrgeIndicatorScales
 from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
 
@@ -45,8 +45,8 @@ class UrgeIndicator(ConfigurableVisualElement):
     def validateConfiguration(self):
         positiveNumericValidator = PositiveNumericValueValidator.PositiveNumericValueValidator()
         colorValidator = helpers.ColorValidator()
-        positionValidator = helpers.PositionValidator()
-        positionValidator.validatePosition(self.getConfigurationValue('pos'))
+        positionValidator = PositionValidator.PositionValidator()
+        positionValidator.validate(self.getConfigurationValue('pos'))
         # validate background bar config
         positiveNumericValidator.validate(self.getConfigurationValue('bg_height'))
         positiveNumericValidator.validate(self.getConfigurationValue('bg_width'))

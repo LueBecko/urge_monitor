@@ -1,8 +1,7 @@
 from psychopy import visual
 from . import helpers
 from .ConfigurableVisualElement import ConfigurableVisualElement
-from .validators import PositiveNumericValueValidator
-from .validators import NotNegativeNumericValueValidator
+from .validators import PositiveNumericValueValidator, PositionValidator, NotNegativeNumericValueValidator
 
 class UrgeIndicatorScalesText(ConfigurableVisualElement):
     '''manages the lifecycle of the scale annotations of the urge indicator'''
@@ -36,8 +35,8 @@ class UrgeIndicatorScalesText(ConfigurableVisualElement):
         positiveNumericValidator = PositiveNumericValueValidator.PositiveNumericValueValidator()
         notNegativeNumericValidator = NotNegativeNumericValueValidator.NotNegativeNumericValueValidator()
         colorValidator = helpers.ColorValidator()
-        positionValidator = helpers.PositionValidator()
-        positionValidator.validatePosition(self.getConfigurationValue('pos'))
+        positionValidator = PositionValidator.PositionValidator()
+        positionValidator.validate(self.getConfigurationValue('pos'))
         colorValidator.validateColor(self.__window.colorSpace, self.getConfigurationValue('scales_text_col'))
         notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthl'))
         notNegativeNumericValidator.validate(self.getConfigurationValue('scales_widthr'))

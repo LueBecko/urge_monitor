@@ -4,6 +4,7 @@ from . import helpers, hist, annote
 from .UrgeIndicator import UrgeIndicator
 from .UrgeIndicatorScales import UrgeIndicatorScales
 from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
+from .validators.ResolutionValidator import ResolutionValidator
 
 class Visuals:
     '''handles the lifecycle of all visual objects needed for presentation of the experiment'''
@@ -35,7 +36,7 @@ class Visuals:
         assert isinstance(configMonitor['name'], str)
         assert isinstance(configMonitor['distance'], (int, float))
         assert isinstance(configMonitor['width'], (int, float))
-        helpers.ResolutionValidator().validateResolution(configMonitor['resolution'])
+        ResolutionValidator().validate(configMonitor['resolution'])
         # create monitor
         __mon = monitors.Monitor(configMonitor['name'],
             distance=configMonitor['distance'],
@@ -48,7 +49,7 @@ class Visuals:
         # TODO: separate validation and creation and test validation
         # asserts
         helpers.ColorValidator().validateColorSpace(configWindow['color_space'])
-        helpers.ResolutionValidator().validateResolution(configWindow['resolution'])
+        ResolutionValidator().validate(configWindow['resolution'])
         assert isinstance(configWindow['fullscr'], bool)
         # create win
         __win = visual.Window(size=configWindow['resolution'],

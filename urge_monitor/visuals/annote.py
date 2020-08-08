@@ -2,6 +2,7 @@
 
 from psychopy import visual
 from . import helpers
+from .validators.PositionValidator import PositionValidator
 
 
 # both vars are static class members
@@ -13,7 +14,7 @@ def AddAnnote(name, text, pos, size, col):
     # asserts
     assert isinstance(name, str)
     assert isinstance(text, str)
-    helpers.PositionValidator().validatePosition(pos)
+    PositionValidator().validate(pos)
     assert isinstance(size, (float, int))
     validator = helpers.ColorValidator()
     validator.validateColor(__win.colorSpace, col)

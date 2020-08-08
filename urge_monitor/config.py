@@ -9,7 +9,8 @@ from serial import (EIGHTBITS, FIVEBITS, PARITY_EVEN, PARITY_MARK, PARITY_NONE,
                     STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO)
 
 from visuals import helpers 
-
+from visuals.validators.ResolutionValidator import ResolutionValidator
+from visuals.validators.PositionValidator import PositionValidator
 
 class InvalidConfigException(BaseException):
     '''Exception indicating that some cofig is not setup correctly'''
@@ -164,7 +165,7 @@ class ExperimentConfig:
         if not __is_numeric_pos__(self.configMon['monitor']['width']):
             raise InvalidConfigException(self.monFile,
                 'monitor width needs to be a positive numerical')
-        helpers.ResolutionValidator().validateResolution(self.configMon['monitor']['resolution'])
+        ResolutionValidator().validate(self.configMon['monitor']['resolution'])
         if not 'window' in self.configMon:
             self.configMon['window'] = {}
             warnings.warn('No window section given, it is generated ' +
@@ -193,7 +194,7 @@ class ExperimentConfig:
                 self.configMon['monitor']['resolution'])
             warnings.warn('missing window resolution. ' +
                 'Set to resolution of monitor.')
-        helpers.ResolutionValidator().validateResolution(self.configMon['window']['resolution'])
+        ResolutionValidator().validate(self.configMon['window']['resolution'])
 
     def ReadInputDevice(self):
         # setup
@@ -539,7 +540,7 @@ class ExperimentConfig:
         if not 'pos' in list(conf['visuals'].keys()):
             conf['visuals']['pos'] = [0, 0]
             warnings.warn(filename + ': no visuals-pos, set to center pos')
-        helpers.PositionValidator().validatePosition(conf['visuals']['pos'])
+        PositionValidator().validate(conf['visuals']['pos'])
         # validate visuals-bg_*
         if not 'bg_height' in list(conf['visuals'].keys()):
             conf['visuals']['bg_height'] = 7
@@ -765,7 +766,7 @@ class ExperimentConfig:
             raise InvalidConfigException(filename,
                 'visuals-apos length mismatch with aname')
         for entry in conf['visuals']['apos']:
-            helpers.PositionValidator().validatePosition(entry)
+            PositionValidator().validate(entry)
         if not 'asize' in list(conf['visuals'].keys()):
             conf['visuals']['asize'] = [10] * l
             warnings.warn(filename + ': visuals-asize missing,' +

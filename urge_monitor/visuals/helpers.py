@@ -1,23 +1,5 @@
 # TODO: split in several single class files and move them to a sub package validation
 
-class ResolutionValidator:
-    '''used to validate Resolution Values'''
-    def validateResolution(self, resolution):
-        assert isinstance(resolution, (list, tuple))
-        assert len(resolution) == 2
-        assert isinstance(resolution[0], int)
-        assert isinstance(resolution[1], int)
-        assert resolution[0] > 0
-        assert resolution[1] > 0
-
-class PositionValidator:
-    '''used to validate Position Values'''
-    def validatePosition(self, position):
-        assert isinstance(position, (list, tuple))
-        assert len(position) == 2
-        assert isinstance(position[0], (int, float))
-        assert isinstance(position[1], (int, float))
-
 class ColorValidator:
     '''used to validate Color Space and Color Values'''
     # TODO: split in color validator and colorspace validator
