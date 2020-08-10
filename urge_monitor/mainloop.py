@@ -79,7 +79,7 @@ class PulseListener:
 
 class OutPulse:
     '''simple class to send pulse at start'''
-
+# TODO: reactivate simulation mode (maybe as separate classes OutPulseSimulation and OutPulseParallel). Extract into separate files in io sub-package
     def __init__(self, C):
         self.__sim__ = C['pulse']['simulation']
         self.__address__ = C['out_pulse']['address']
@@ -135,6 +135,7 @@ def MainLoop(C):
         # generate pulse object
         PL = PulseListener(C['pulse'], IL)
         logging.info('PulseListener created')
+        # TODO: better variable names
         sendOutPulse = C['pulse']['pulse']['send_out_pulse']
         if sendOutPulse:
             OP = OutPulse(C['pulse'])
@@ -191,7 +192,6 @@ def MainLoop(C):
 
             if PL.Pulse():
                 logging.info('Pulse received')
-                print('got pulse')
                 if playPulseSoundbegin:
                     APb.play()
                 break
@@ -201,7 +201,6 @@ def MainLoop(C):
         if not abortRun:
             if sendOutPulse:
                 logging.info('sending eeg pulse')
-                print('send eeg synchronisation pulse')
                 OP.SendPulse()
 
             t = 0.0
@@ -216,6 +215,7 @@ def MainLoop(C):
                     urgevalue = IL.GetUrge()
                     DH.recordUrge(urgevalue, t, st,
                         IL.GetBufferedKeys()[1:])
+                    # TODO: send pulse if configured (maybe add as callback to DataHandler, that is executed after record urge automatically)
                     sampleclock.add(sampleclock_increment)
 
                 if plotclock.getTime() >= 0.0:  # update plot

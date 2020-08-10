@@ -60,7 +60,7 @@ class DataHandler:
                 self.__csvFilename = (
                     direc + self.__runName + '_' + str(i) + '.csv')
         if i > 0:
-            warnings.warn('Found conflivting log files, wrote on files ' +
+            warnings.warn('Found conflicting log files, wrote on files ' +
                 self.__infFilename + ' and ' + self.__csvFilename)
         # states
         self.__currentState = None
@@ -161,6 +161,7 @@ class DataHandler:
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
         self.__csvData[self.__currSample] = [urgevalue, rec_time, lag] + buttons
         self.__currSample = self.__currSample + 1
+        # TODO: add callbacks called after recordUrge
 
     def passError(self, excep):
         self.__baseInfo['exception'] = excep

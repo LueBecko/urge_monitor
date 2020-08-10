@@ -3,6 +3,8 @@ from .validators.ColorSpaceValidator import ColorSpaceValidator
 # TODO: split in several single class files and move them to a sub package validation
 
 class ColorValidator:
+    # TDOD: should this be sub validators? one for each color space?
+    # TODO: use sub validators for numeric test
     def __init__(self):
         self.__colorSpaceValidator = ColorSpaceValidator()
 
