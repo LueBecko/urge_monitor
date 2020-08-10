@@ -12,7 +12,7 @@ import csv
 import psychopy.info
 from psychopy import data
 import configparser
-import abc
+from abc import ABC, abstractmethod
 
 # Status Constants
 class STATE:
@@ -29,7 +29,7 @@ class ERROR_CODE:
     SUCCESS = 'Success' # run to an end without errors
     ERROR_OTHER = 'Error'  # captures all errors not defined above
 
-class UrgeRecordEventListener(abc):
+class UrgeRecordEventListener(ABC):
     '''gets fired after an urge was recorded. Add any action you like'''
     @abstractmethod
     def onEvent(self, urgeValue):
@@ -166,14 +166,14 @@ class DataHandler:
 
     def registerUrgeRecordListener(self, listener):
         ''' adds a listener to be fired when an Urge gets recorded'''
-        if isinstance(listener, UrgeRecordEventListener)
+        if isinstance(listener, UrgeRecordEventListener):
             self.__urgeRecordListeners.append(listener)
 
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
         ''' a urge event should be recorded - fires UrgeRecordListeners '''
         self.__csvData[self.__currSample] = [urgevalue, rec_time, lag] + buttons
         self.__currSample = self.__currSample + 1
-        for listener in self.__urgeRecordListeners
+        for listener in self.__urgeRecordListeners:
             listener.onEvent(urgevalue)
 
     def passError(self, excep):

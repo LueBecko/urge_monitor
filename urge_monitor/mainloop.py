@@ -6,36 +6,6 @@ import sound
 
 import devices
 
-class OutPulse:
-    '''simple class to send pulse at start'''
-# TODO: reactivate simulation mode (maybe as separate classes OutPulseSimulation and OutPulseParallel). Extract into separate files in io sub-package
-    def __init__(self, C):
-        self.__sim__ = C['pulse']['simulation']
-        self.__address__ = C['out_pulse']['address']
-        self.__data__ = C['out_pulse']['data']
-        self.__duration__ = C['out_pulse']['duration']
-#        if self.__sim__:
-#            self.__port__ = None
-#        else:
-#            self.__port__ = parallel.ParallelPort(address=self.__address__)
-#            self.__port__.setData(0)
-        self.__port__ = parallel.ParallelPort(address=self.__address__)
-        self.__port__.setData(0)
-
-    def SendPulse(self):
-#        if not self.__sim__:
-#            self.__port__.setData(self.__data__)
-#            core.wait(secs=self.__duration__, hogCPUperiod=self.__duration__)
-#            self.__port__.setData(0)
-        self.__port__.setData(self.__data__)
-        core.wait(secs=self.__duration__, hogCPUperiod=self.__duration__)
-        self.__port__.setData(0)
-
-    def __del__(self):
-        if not self.__sim__:
-            pass
-
-
 def MainLoop(C):
     CurrRun = C['runtime']['curr_run']
     DH = DataHandler.DataHandler(C['exp']['info'],
@@ -61,13 +31,10 @@ def MainLoop(C):
             c += 1
         IL.GetBufferedKeys()
 
-        # generate pulse object
         PL = devices.PulseListener.PulseListener(C['pulse'], IL)
         logging.info('PulseListener created')
-        # TODO: better variable names
-        sendOutPulse = C['pulse']['pulse']['send_out_pulse']
-        if sendOutPulse:
-            OP = OutPulse(C['pulse'])
+        pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
+        pulseOut.initDevice()
 
         # create sound objects
         playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']
@@ -128,9 +95,7 @@ def MainLoop(C):
         print('leaving pre loop')
 ########################################################
         if not abortRun:
-            if sendOutPulse:
-                logging.info('sending eeg pulse')
-                OP.SendPulse()
+            pulseOut.sendPulse()
 
             t = 0.0
             sampleclock.reset()

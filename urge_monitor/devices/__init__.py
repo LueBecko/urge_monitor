@@ -5,4 +5,5 @@
 '''
 
 from . import PulseListener
+from . import PulseOutput
 from . import InputListener
