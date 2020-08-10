@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 from psychopy import event
 from psychopy.hardware import joystick
 from psychopy.iohub import launchHubServer
 joystick.backend = 'pyglet'
 
-
+# TODO: use abstract base class (abc) and add some docs
 class InputDeviceAbstract(object):
 
     __deviceName = 'Device'

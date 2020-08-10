@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from psychopy import prefs
 prefs.hardware['audioLib'] = ['PTB']
 from psychopy import sound
