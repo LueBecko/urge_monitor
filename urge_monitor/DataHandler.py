@@ -12,7 +12,7 @@ import csv
 import psychopy.info
 from psychopy import data
 import configparser
-
+import abc
 
 # Status Constants
 class STATE:
@@ -26,9 +26,14 @@ class STATE:
 
 class ERROR_CODE:
     NONE = 'None'  # still running
-    SUCCESS = 'Success'
+    SUCCESS = 'Success' # run to an end without errors
     ERROR_OTHER = 'Error'  # captures all errors not defined above
 
+class UrgeRecordEventListener(abc):
+    '''gets fired after an urge was recorded. Add any action you like'''
+    @abstractmethod
+    def onEvent(self, urgeValue):
+        pass
 
 class DataHandler:
 
@@ -76,6 +81,7 @@ class DataHandler:
               self.__runConfig['control']['urge_sample_rate']))
         self.__csvData = [[float('nan')] * (3 + self.nButtons)] * self.nSamples
         self.__currSample = 0
+        self.__urgeRecordListeners = []
 
     def __gatherInitialInf__(self):
         # gather Infos
@@ -147,7 +153,7 @@ class DataHandler:
     def __writeData__(self):
         with (open(self.__csvFilename, 'w')) as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
-            writer.writerows(self.__csvData)  # test this write methode
+            writer.writerows(self.__csvData)
 
     def setState(self, state=None, error_code=None):
         if state is not None:
@@ -158,10 +164,17 @@ class DataHandler:
     def getState(self):
         return self.__currentState
 
+    def registerUrgeRecordListener(self, listener):
+        ''' adds a listener to be fired when an Urge gets recorded'''
+        if isinstance(listener, UrgeRecordEventListener)
+            self.__urgeRecordListeners.append(listener)
+
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
+        ''' a urge event should be recorded - fires UrgeRecordListeners '''
         self.__csvData[self.__currSample] = [urgevalue, rec_time, lag] + buttons
         self.__currSample = self.__currSample + 1
-        # TODO: add callbacks called after recordUrge
+        for listener in self.__urgeRecordListeners
+            listener.onEvent(urgevalue)
 
     def passError(self, excep):
         self.__baseInfo['exception'] = excep
