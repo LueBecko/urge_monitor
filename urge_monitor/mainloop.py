@@ -6,6 +6,14 @@ import sound
 
 import devices
 
+class UrgeRecordPulseSender(DataHandler.UrgeRecordEventListener):
+    def __init__(self, pulseOutput):
+        assert isinstance(pulseOutput, devices.PulseOutput.PulseOutput)
+        self.__pulseOutput = pulseOutput
+
+    def onEvent(self, urgeValue):
+        self.__pulseOutput.setDataValue(int(urgeValue * 255.0))
+
 def MainLoop(C):
     CurrRun = C['runtime']['curr_run']
     DH = DataHandler.DataHandler(C['exp']['info'],
@@ -35,6 +43,8 @@ def MainLoop(C):
         logging.info('PulseListener created')
         pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
         pulseOut.initDevice()
+
+
 
         # create sound objects
         playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']
