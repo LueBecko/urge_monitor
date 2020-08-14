@@ -13,6 +13,11 @@ class UrgeRecordPulseSender(DataHandler.UrgeRecordEventListener):
 
     def onEvent(self, urgeValue):
         self.__pulseOutput.setDataValue(int(urgeValue * 255.0))
+        self.__pulseOutput.sendPulse()
+
+def applyFiringPattern(pulseOutput, configPulse, DH):
+    if ('firing_pattern' in configPulse['pulse'] and configPulse['pulse']['firing_pattern'] == devices.PulseOutput.PulseFiringPattern.ON_URGE_RECORD):
+        DH.registerUrgeRecordListener(UrgeRecordPulseSender(pulseOutput))
 
 def MainLoop(C):
     CurrRun = C['runtime']['curr_run']
@@ -44,7 +49,7 @@ def MainLoop(C):
         pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
         pulseOut.initDevice()
 
-
+        applyFiringPattern(pulseOut, C['pulse'], DH)
 
         # create sound objects
         playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']

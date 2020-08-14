@@ -238,11 +238,30 @@ This file only contains one section: \verb|[input]|. One entry is always present
 
 \section{pulse.ini}
 
-\textit{pulse.ini} contains all parameters regarding pulses send by the scanner. It contains one section \verb|[pulse]|, which contains top level information on pulse configuration. It contains the item \verb|simulation| (a boolean which indicates if pulse actually meassured - False - or generated artificially 2.5 sec after run start - True), the item \verb|interface| (a string defining the interface to use to meassure pulses), \verb|play_sound_begin| (a boolean which indicates if the stimulation computer starts playing a beep on receiving the first pulse - for synchronizing with the video capture system), \verb|play_sound_end| (a boolean which indicates if the stimulation computer starts playing a beep on ending a run - for synchronizing with the video capture system) and \verb|send_out_pulse| (a boolean indicating if an out pulse should for synchornisytion purposes). \verb|interface| can be any of the following: \verb|parallel|, \verb|serial| or \verb|keyboard|.
+\textit{pulse.ini} contains all parameters regarding pulses send to external devices and received from external devices. It contains one section \verb|[pulse]|, which contains top level information on pulse configuration. It contains 
+\begin{itemize}
+	\item \verb|simulation| a boolean which indicates if pulse actually meassured - False - or generated artificially 2.5 sec after run start - True
+	\item \verb|interface| a string defining the device interface for send and recieve pulses 
+	\begin{itemize}
+		\item \verb|parallel| parallel port
+		\item \verb|serial| serial port
+		\item \verb|keyboard| pulse is coupled to a keyboard key
+	\end{itemize}
+	\item \verb|send_out_pulse|  a boolean indicating if an out pulse should for synchornisytion purposes
+	\item \verb|firing_pattern|  a text which indicates how to pulses are fired
+	\begin{itemize}
+		\item \verb|NONE|  no additional firing of pulses is performed
+		\item \verb|ON_URGE_RECORD|  send an pulse with urge data, after each urge record event
+	\end{itemize}  
+	\item \verb|play_sound_begin|  a boolean which indicates if the stimulation computer starts playing a beep on receiving the first pulse - for synchronizing with the video capture system
+	\item \verb|play_sound_end|  a boolean which indicates if the stimulation computer starts playing a beep on ending a run - for synchronizing with the video capture system
+\end{itemize}
 
 \textbf{Note:} In future versions the simulation parameter might get replaced by a simulation interface.
 
-\textbf{Note:} The complete sound-configuration has grwon into the pulse configuration. In futur version sound configuration might be mived to a seperate config file for clearity.
+\textbf{Note:} The complete sound-configuration has grown into the pulse configuration. In futur version sound configuration might be moved to a seperate config file for clearity.
+
+\textbf{Note:} The parameter \verb|send_out_pulse| will become obsolete and will emerge into a separate \verb|firing_pattern|
 
 Each of the above interfaces is configured in an additional section with its name. So when choosing a \verb|parallel| interface the file \textit{pulse.ini} also needs to contain a section named \verb|[parallel]|. (see figure \ref{fig:pulseiniparallel})
 
@@ -296,7 +315,7 @@ The section \verb|out_pulse| is optional and only needed if \verb|out_pulse| is 
 			\begin{verbatim}
 			[pulse]
 			simulation = True
-			interface = "parallel"
+			interface = "serial"
 			play_sound = True
 			
 			[serial]

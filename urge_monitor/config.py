@@ -12,6 +12,9 @@ from visuals import helpers
 from visuals.validators.ResolutionValidator import ResolutionValidator
 from visuals.validators.PositionValidator import PositionValidator
 from visuals.validators.ColorSpaceValidator import ColorSpaceValidator
+from devices.PulseOutput import PulseFiringPattern
+NONE = PulseFiringPattern.NONE
+ON_URGE_RECORD = PulseFiringPattern.ON_URGE_RECORD
 
 class InvalidConfigException(BaseException):
     '''Exception indicating that some cofig is not setup correctly'''

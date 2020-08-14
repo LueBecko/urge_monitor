@@ -4,7 +4,7 @@ import serial
 
 class PulseListener:
     '''simple class for parallel port pulse reading, support simulation'''
-    # TODO: polymorphic PulseListener (simulation, parallel, serial)
+    # TODO: polymorphic PulseListener (simulation, parallel, serial, keyboard)
     def __init__(self, C, IL):
         self.__InputListener__ = IL
         self.__sim__ = C['pulse']['simulation']

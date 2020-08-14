@@ -2,7 +2,13 @@ from psychopy import core
 from psychopy import parallel
 from psychopy import logging
 
+from enum import Enum
 from abc import ABC, abstractmethod
+
+class PulseFiringPattern(Enum):
+    ''' possible configurable firing patterns of outgoing pulses '''
+    NONE = 0
+    ON_URGE_RECORD = 1
 
 class PulseOutput(ABC):
     '''use to send send pulses'''
