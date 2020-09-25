@@ -239,7 +239,7 @@ logging.info('Closing window, closing all other ressources')
 from shutil import copyfile
 import datetime
 copyfile('log.txt', baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep +
-    Conf['exp']['main']['name'] + os.sep +
-    'log-' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + '.txt')
+         Conf['exp']['main']['name'] + os.sep +
+         'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.txt')
 
 core.quit()
