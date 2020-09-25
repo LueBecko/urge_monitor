@@ -13,6 +13,13 @@ from visuals.validators.ResolutionValidator import ResolutionValidator
 from visuals.validators.PositionValidator import PositionValidator
 from visuals.validators.ColorSpaceValidator import ColorSpaceValidator
 
+
+class MyConfigParser (configparser.RawConfigParser):
+    def __init__(self, **kwargs):
+        if 'inline_comment_prefixes' not in kwargs:
+            kwargs['inline_comment_prefixes'] = ('#', ';')
+        configparser.RawConfigParser.__init__(self, **kwargs)
+
 class InvalidConfigException(BaseException):
     '''Exception indicating that some cofig is not setup correctly'''
     def __init__(self, expFile, msg=''):
@@ -71,7 +78,7 @@ class ExperimentConfig:
             raise InvalidConfigException(self.expFolder,
                 'The folder does not contain exp.ini.')
         # start reading the experiment
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.expFile)
         for se in cp.sections():
             self.configExp[se] = {}
@@ -138,7 +145,7 @@ class ExperimentConfig:
             '(monitor.ini). The default monitor file will be used (' +
             self.monFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.monFile)
         for se in cp.sections():
             self.configMon[se] = {}
@@ -206,7 +213,7 @@ class ExperimentConfig:
             '(input.ini). The default input file will be used (' +
             self.inpFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.inpFile)
         for se in cp.sections():
             self.configInp[se] = {}
@@ -273,7 +280,7 @@ class ExperimentConfig:
             '(pulse.ini). The default pulse file will be used (' +
             self.pulFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.pulFile)
         for se in cp.sections():
             self.configPul[se] = {}
@@ -807,7 +814,7 @@ class ExperimentConfig:
             '(defaults.ini). The default defaults file will be used (' +
             self.defFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.defFile)
         for se in cp.sections():
             self.configDef[se] = {}
@@ -824,7 +831,7 @@ class ExperimentConfig:
                 self.configRuns[-1][se] = {}
                 self.configRuns[-1][se].update(self.configDef[se])
             if len(eval(run[1])) > 0:
-                cp = configparser.RawConfigParser()
+                cp = MyConfigParser()
                 cp.read(self.expFolder + os.sep + eval(run[1]))
                 for se in cp.sections():
                     for it in cp.options(se):
