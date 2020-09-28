@@ -210,10 +210,10 @@ def MainLoop(C):
             ## Loop in which experiment is performed
             while t < t_run:
                 IL.ReadUrge()
+                urgevalue = IL.GetUrge()
 
                 st = sampleclock.getTime()
                 if st >= 0.0:  # recording freq
-                    urgevalue = IL.GetUrge()
                     DH.recordUrge(urgevalue, t, st,
                         IL.GetBufferedKeys()[1:])
                     sampleclock.add(sampleclock_increment)
