@@ -2,11 +2,14 @@
 # top level experiment control ui
 
 import os
+import datetime
 import wx
 import config
 import mainloop
 from psychopy import core, logging
 
+
+#baseDir = os.path.normpath(os.path.join(os.getcwd(), '..'))
 baseDir = os.getcwd()
 
 # Create on module wide app object.
@@ -218,7 +221,9 @@ Are you sure?""", 'Question',
 ################################################################
 ## start basic components
 clock = core.Clock()
-L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=0)
+base_log_file =os.path.join(baseDir, 'log.txt')
+date_log_file_name = 'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+L = logging.LogFile(f=base_log_file, filemode='w', encoding='utf8', level=0)
 logging.setDefaultClock(clock)
 
 logging.info(msg='Experiment started')
@@ -237,9 +242,9 @@ del eControl
 logging.info('Closing window, closing all other ressources')
 
 from shutil import copyfile
-import datetime
-copyfile('log.txt', baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep +
-         Conf['exp']['main']['name'] + os.sep +
-         'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.txt')
+copyfile(base_log_file, 
+         os.path.join(baseDir, Conf['exp']['main']['log_folder'],  
+                      Conf['exp']['main']['name'],
+                      date_log_file_name))
 
 core.quit()
