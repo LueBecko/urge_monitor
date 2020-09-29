@@ -210,8 +210,7 @@ def MainLoop(C):
 ########################################################
         if not abortRun:
             if sendOutPulse:
-                logging.info('sending eeg pulse')
-                print('send eeg synchronisation pulse')
+                logging.info('sending eeg begin pulse')
                 OP.SendPulse()
 
             if C['pulse']['pulse']['send_lsl_markers']:
