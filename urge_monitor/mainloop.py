@@ -7,6 +7,7 @@ import DataHandler
 import InputDevice
 import InputListener
 import sound
+import threading
 
 ## stuff for pulse recording
 from psychopy import parallel
@@ -110,6 +111,8 @@ class OutPulse:
             pass
 
 
+
+
 def MainLoop(C):
     CurrRun = C['runtime']['curr_run']
     DH = DataHandler.DataHandler(C['exp']['info'],
@@ -176,6 +179,33 @@ def MainLoop(C):
         sampleclock = core.Clock()
         t_run = float(C['runs'][CurrRun]['control']['run_time'])
 
+        # define thread for collecting samples
+        def collect_urge_data():
+            nonlocal IL
+            nonlocal DH
+            nonlocal urgevalue
+            nonlocal C
+
+            t_run = float(C['runs'][CurrRun]['control']['run_time'])
+
+            sampleclock_increment = (1.0 /
+                C['runs'][CurrRun]['control']['urge_sample_rate'])
+            #check_urge_interval = 1.0 / max(C['runs'][CurrRun]['control']['urge_sample_rate'], 
+            #                                C['runs'][CurrRun]['control']['hist_rate']) * 0.8
+            sampleclock = core.Clock()
+            rtclock = core.Clock()
+            t = rtclock.getTime()
+
+            while t < t_run:
+                IL.ReadUrge()
+                urgevalue = IL.GetUrge()
+                t = rtclock.getTime()
+                st = sampleclock.getTime()
+                if st >= 0:
+                    DH.recordUrge(urgevalue, t, st,
+                                  IL.GetBufferedKeys()[1:])
+                    sampleclock.add(sampleclock_increment)
+
 ###############################################################
         ## Loop to wait for first pulse
         logging.info('enter pre loop')
@@ -223,17 +253,20 @@ def MainLoop(C):
             sampleclock.reset()
             rtclock = core.Clock()
 
-            ## Loop in which experiment is performed
-            while t < t_run:
-                IL.ReadUrge()
-                urgevalue = IL.GetUrge()
+            collect_data_thread = threading.Thread(target=collect_urge_data)
+            collect_data_thread.start()
 
-                t = rtclock.getTime()
-                st = sampleclock.getTime()
-                if st >= 0:  # recording freq
-                    DH.recordUrge(urgevalue, t, st,
-                        IL.GetBufferedKeys()[1:])
-                    sampleclock.add(sampleclock_increment)
+            ## Loop in which experiment is performed
+            while collect_data_thread.is_alive():
+                #IL.ReadUrge()
+                #urgevalue = IL.GetUrge()
+
+                #t = rtclock.getTime()
+                #st = sampleclock.getTime()
+                #if st >= 0:  # recording freq
+                #    DH.recordUrge(urgevalue, t, st,
+                #        IL.GetBufferedKeys()[1:])
+                #    sampleclock.add(sampleclock_increment)
 
                 if plotclock.getTime() >= 0.0:  # update plot
                     graphics.updateHistoriePlot(urgevalue)
