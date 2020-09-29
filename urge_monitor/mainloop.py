@@ -222,13 +222,15 @@ def MainLoop(C):
             t = 0.0
             sampleclock.reset()
             rtclock = core.Clock()
+
             ## Loop in which experiment is performed
             while t < t_run:
                 IL.ReadUrge()
                 urgevalue = IL.GetUrge()
 
+                t = rtclock.getTime()
                 st = sampleclock.getTime()
-                if st >= 0.0:  # recording freq
+                if st >= 0:  # recording freq
                     DH.recordUrge(urgevalue, t, st,
                         IL.GetBufferedKeys()[1:])
                     sampleclock.add(sampleclock_increment)
@@ -248,7 +250,6 @@ def MainLoop(C):
                         error_code=DataHandler.ERROR_CODE.SUCCESS)
                     break
 
-                t = rtclock.getTime()
                 
  
         logging.info('leaving main loop')
