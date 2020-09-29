@@ -178,7 +178,7 @@ def MainLoop(C):
 
 ###############################################################
         ## Loop to wait for first pulse
-        print('enter pre loop')
+        logging.info('enter pre loop')
         abortRun = False
         while True:
             IL.ReadUrge()
@@ -202,12 +202,11 @@ def MainLoop(C):
 
             if PL.Pulse():
                 logging.info('Pulse received')
-                print('got pulse')
                 if playPulseSoundbegin:
                     APb.play()
                 break
 
-        print('leaving pre loop')
+        logging.info('leaving pre loop')
 ########################################################
         if not abortRun:
             if sendOutPulse:
@@ -218,6 +217,7 @@ def MainLoop(C):
             if C['pulse']['pulse']['send_lsl_markers']:
                 logging.info('sending LSL begin marker')
                 lsl_stream.push_sample([C['pulse']['lsl']['marker_begin']])
+                logging.info('playing start sync sound')
             t = 0.0
             sampleclock.reset()
             rtclock = core.Clock()
@@ -248,7 +248,9 @@ def MainLoop(C):
                     break
 
                 t = rtclock.getTime()
-        print('leaving main loop')
+                
+ 
+        logging.info('leaving main loop')
         if C['pulse']['pulse']['send_lsl_markers']:
             logging.info('sending LSL end marker')
             lsl_stream.push_sample([C['pulse']['lsl']['marker_end']])
