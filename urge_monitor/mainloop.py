@@ -12,6 +12,9 @@ import sound
 from psychopy import parallel
 import serial
 
+import pylsl as lsl  # for sending LSL events (e.g. for sync with eye-tracker recording)
+
+
 class PulseListener:
     '''simple class for parallel port pulse reading, support simulation'''
 
@@ -114,6 +117,14 @@ def MainLoop(C):
         C['exp']['main'], C['runs'][CurrRun])
     graphics = None
 
+    # define LSL stream outlet
+    if C['pulse']['pulse']['send_lsl_markers']:
+        lsl_stream_info = lsl.StreamInfo(name=C['pulse']['lsl']['stream_name'], 
+                                         type='Markers', 
+                                         channel_format=lsl.cf_string)
+        lsl_stream = lsl.StreamOutlet(lsl_stream_info)
+    
+
     try:
         # generate visual elements
         graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
@@ -204,6 +215,9 @@ def MainLoop(C):
                 print('send eeg synchronisation pulse')
                 OP.SendPulse()
 
+            if C['pulse']['pulse']['send_lsl_markers']:
+                logging.info('sending LSL begin marker')
+                lsl_stream.push_sample([C['pulse']['lsl']['marker_begin']])
             t = 0.0
             sampleclock.reset()
             rtclock = core.Clock()
@@ -235,6 +249,9 @@ def MainLoop(C):
 
                 t = rtclock.getTime()
         print('leaving main loop')
+        if C['pulse']['pulse']['send_lsl_markers']:
+            logging.info('sending LSL end marker')
+            lsl_stream.push_sample([C['pulse']['lsl']['marker_end']])
         if playPulseSoundend:
             APe.play()
 ############################################################

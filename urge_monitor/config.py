@@ -324,6 +324,39 @@ class ExperimentConfig:
         if not self.configPul['pulse']['interface'] in self.configPul:
             raise InvalidConfigException(self.pulFile,
                 'selected interface without specification')
+
+        # lsl settings    
+        if 'send_lsl_markers' not in list(self.configPul['pulse'].keys()):
+            self.configPul['pulse']['send_lsl_markers'] = False
+            warnings.warn('pulse-send_lsl_markers not given! Setting to False')
+        if not isinstance(self.configPul['pulse']['send_lsl_markers'], bool):
+            raise InvalidConfigException(self.pulFile,
+                'pulse-send_lsl_markers must be boolean')
+        if self.configPul['pulse']['send_lsl_markers']:
+            if 'lsl' not in list(self.configPul.keys()):    
+                warnings.warn('pulse-send_lsl_marker set to True,' +
+                    'but no lsl configuration given' +
+                    'Default values will be used.')
+                self.configPul['lsl'] = {}   
+            if 'stream_name' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['stream_name'] = 'UrgeMonitor'
+                warnings.warn('lsl-stream_name not given! Setting to UrgeMonitor')
+            if not isinstance(self.configPul['lsl']['stream_name'], str):
+                raise InvalidConfigException(self.pulFile,
+                    'lsl-stream_name must be a string')
+            if 'marker_begin' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['marker_begin'] = 'urge_begin'
+                warnings.warn('lsl-marker_begin not given! Setting to urge_begin')
+            if not isinstance(self.configPul['lsl']['marker_begin'], str):
+                self.configPul['lsl']['marker_begin'] = str(self.configPul['lsl']['marker_begin'])
+                warnings.warn('lsl-marker_begin converted to string')
+            if 'marker_end' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['marker_end'] = 'urge_end'
+                warnings.warn('lsl-marker_end not given! Setting to urge_end')
+            if not isinstance(self.configPul['lsl']['marker_end'], str):
+                self.configPul['lsl']['marker_end'] = str(self.configPul['lsl']['marker_end'])
+                warnings.warn('lsl-marker_end converted to string')
+
         # parallel port
         if self.configPul['pulse']['interface'] == 'parallel':
             if not 'address' in list(self.configPul['parallel'].keys()):
