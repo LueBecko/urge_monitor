@@ -202,8 +202,6 @@ def MainLoop(C):
 
             if PL.Pulse():
                 logging.info('Pulse received')
-                if playPulseSoundbegin:
-                    APb.play()
                 break
 
         logging.info('leaving pre loop')
@@ -216,7 +214,11 @@ def MainLoop(C):
             if C['pulse']['pulse']['send_lsl_markers']:
                 logging.info('sending LSL begin marker')
                 lsl_stream.push_sample([C['pulse']['lsl']['marker_begin']])
+
+            if playPulseSoundbegin:
                 logging.info('playing start sync sound')
+                APb.play()
+
             t = 0.0
             sampleclock.reset()
             rtclock = core.Clock()
@@ -250,11 +252,19 @@ def MainLoop(C):
                 
  
         logging.info('leaving main loop')
+        if sendOutPulse:
+            logging.info('sending eeg end pulse')
+            OP.SendPulse()
+
         if C['pulse']['pulse']['send_lsl_markers']:
             logging.info('sending LSL end marker')
             lsl_stream.push_sample([C['pulse']['lsl']['marker_end']])
+
         if playPulseSoundend:
+            logging.info('playing end sync sound')
             APe.play()
+
+        logging.info('completed run')    
 ############################################################
     except Exception as e:
         print('Error occured')
