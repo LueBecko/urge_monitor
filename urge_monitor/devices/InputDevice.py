@@ -1,21 +1,32 @@
 from psychopy import event
 from psychopy.hardware import joystick
 from psychopy.iohub import launchHubServer
+from abc import ABC, abstractmethod
 joystick.backend = 'pyglet'
 
-# TODO: use abstract base class (abc) and add some docs
-class InputDeviceAbstract(object):
+class InputDeviceAbstract(ABC):
+    '''all input devices implement this interface
+    Usage:
+    * To be as precise as possible you have to call readValue when the time has come.
+    * Further processing with the value (e.g. loggin and updating ui can then be done by accessing the read value with getValue.
+    * The input device serves as a buffer until readValue is called again.
+    '''
 
     __deviceName = 'Device'
 
+    @abstractmethod
     def readValue(self):
-        raise NotImplementedError('abstract')
+        '''read the current value from the specific input device'''
+        pass
 
+    @abstractmethod
     def getValue(self):
-        raise NotImplementedError('abstract')
+        '''access the read value from the specific input device'''
+        pass
 
 
 class InputDeviceMousePosAbs(InputDeviceAbstract):
+    '''interprets the absolute y position of the mouse with respect to the application window as input.'''
 
     __deviceName = 'MousePosAbs'
 
@@ -42,6 +53,7 @@ class InputDeviceMousePosAbs(InputDeviceAbstract):
 
 
 class InputDeviceMousePosRel(InputDeviceAbstract):
+    '''interprets the relative y position of the mouse with respect to the application window as input.'''
 
     __deviceName = 'MousePosRel'
 
@@ -51,11 +63,10 @@ class InputDeviceMousePosRel(InputDeviceAbstract):
         self.__stepWidth = sensitivity
 
     def readValue(self):
-        pass
+        self.p = self.__mouse.getRel()[1]
 
     def getValue(self):
-        p = self.__mouse.getRel()[1]
-        self.__pos = min(1.0, max(0.0, self.__pos + p * self.__stepWidth))
+        self.__pos = min(1.0, max(0.0, self.__pos + self.p * self.__stepWidth))
         return self.__pos
 
     def __del__(self):
@@ -63,6 +74,7 @@ class InputDeviceMousePosRel(InputDeviceAbstract):
 
 
 class InputDeviceMouseWheel(InputDeviceAbstract):
+    '''interprets the vertical wheel of the mouse as input. Is bound by the sensitivity.'''
 
     __deviceName = 'MouseWheel'
 
@@ -72,11 +84,10 @@ class InputDeviceMouseWheel(InputDeviceAbstract):
         self.__stepWidth = sensitivity
 
     def readValue(self):
-        pass
+        self.p = self.__mouse.getWheelRel()[1]
 
     def getValue(self):
-        p = self.__mouse.getWheelRel()[1]
-        self.__pos = min(1, max(0, self.__pos + p * self.__stepWidth))
+        self.__pos = min(1, max(0, self.__pos + self.p * self.__stepWidth))
         return self.__pos
 
     def __del__(self):
@@ -84,8 +95,9 @@ class InputDeviceMouseWheel(InputDeviceAbstract):
 
 
 class InputDeviceAuto(InputDeviceAbstract):
+    '''generates automatic input sequences. Good for testing purposes.'''
 
-    __deviceName = 'Automatic'
+    __deviceName = 'Auto'
 
     def __init__(self, sensitivity):
         self.__pos = 0.5
@@ -93,9 +105,6 @@ class InputDeviceAuto(InputDeviceAbstract):
         self.__direction = 1.0
 
     def readValue(self):
-        pass
-
-    def getValue(self):
         self.__pos = self.__pos + self.__direction * self.__stepWidth
         if self.__pos >= 1.0:
             self.__pos = 1.0
@@ -103,6 +112,8 @@ class InputDeviceAuto(InputDeviceAbstract):
         if self.__pos <= 0.0:
             self.__pos = 0.0
             self.__direction = 1.0
+
+    def getValue(self):
         return self.__pos
 
     def __del__(self):
@@ -110,6 +121,7 @@ class InputDeviceAuto(InputDeviceAbstract):
 
 
 class InputDeviceJoystick(InputDeviceAbstract):
+    '''interprets a specified joystick axis/hat position as vertical input. To guarantee reliable data, the device should be calibrate.'''
 
     __deviceName = 'Joystick'
 
@@ -152,6 +164,7 @@ class InputDeviceJoystick(InputDeviceAbstract):
 
 
 class InputDeviceJoystickAbs(InputDeviceAbstract):
+    '''interprets a specified joystick axis/hat changes as vertical input. To guarantee reliable data, the device should be calibrate.'''
 
     __deviceName = 'JoystickAbsoluteAxis'
 
@@ -169,10 +182,9 @@ class InputDeviceJoystickAbs(InputDeviceAbstract):
         self.__channelid = channelid
 
     def readValue(self):
-        pass
+        self.__pos = self.__joystick.getAxis(self.__channelid)
 
     def getValue(self):
-        self.__pos = self.__joystick.getAxis(self.__channelid)
         return self.__pos
 
     def __del__(self):
@@ -180,6 +192,7 @@ class InputDeviceJoystickAbs(InputDeviceAbstract):
 
 
 class InputDeviceKeyboard(InputDeviceAbstract):
+    '''interprets a specified keyboard keys as positional changes.'''
 
     __deviceName = 'Keyboard'
     lastKeys = set()
@@ -207,6 +220,7 @@ class InputDeviceKeyboard(InputDeviceAbstract):
 
 
 class InputDeviceKeyboardHub(InputDeviceAbstract):
+    '''interprets a specified keyboard keys as positional changes. Uses the iohub for asynchronous recording.'''
 
     __deviceName = 'KeyboardHub'
     lastKeys = dict()
