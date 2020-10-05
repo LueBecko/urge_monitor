@@ -17,7 +17,7 @@ base_log_file = os.path.join(baseDir, 'log.txt')
 date_log_file_name = 'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
 L = logging.LogFile(f=base_log_file, filemode='w', encoding='utf8', level=logging_level)
 
-
+import pylsl as lsl
 
 import config
 import mainloop
@@ -242,6 +242,18 @@ logging.info(msg="Selected Experiment: " + eName)
 
 Conf = config.ExperimentConfig(eName, baseDir)
 logging.info(msg='Configuration Interface started, read all configs of exp')
+
+# create LSL stream (this is not really the right place, but we need to ensure
+# the LSL stream persists across runs, otherwise it will raise errors at the
+# receiving side each time a run is terminated, and it will be more difficult
+# to connect to it in the first place...)
+if Conf['pulse']['pulse']['send_lsl_markers']:
+    logging.info('Creating LSL stream: %s' % (Conf['pulse']['lsl']['stream_name']))
+    lsl_stream_info = lsl.StreamInfo(name=Conf['pulse']['lsl']['stream_name'],
+                                     type='Markers',
+                                     channel_format=lsl.cf_string,
+                                     source_id='UrgeMonitor01')
+    Conf['pulse']['lsl']['__outlet'] = lsl.StreamOutlet(lsl_stream_info)
 
 ## augment eConf with runtime information and run
 eControl = ExpDlg(Conf)

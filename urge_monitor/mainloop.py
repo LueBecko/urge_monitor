@@ -120,15 +120,16 @@ def MainLoop(C):
         C['exp']['main'], C['runs'][CurrRun])
     graphics = None
 
-    # define LSL stream outlet
-    if C['pulse']['pulse']['send_lsl_markers']:
-        lsl_stream_info = lsl.StreamInfo(name=C['pulse']['lsl']['stream_name'], 
-                                         type='Markers', 
-                                         channel_format=lsl.cf_string)
-        lsl_stream = lsl.StreamOutlet(lsl_stream_info)
-    
-
     try:
+
+        # get LSL stream from (enhanced) config
+        # (we need to do it this way because creating the stream
+        # inside MainLoop would mean it is destroyed at the end
+        # of each run, potentially leading to errors at the
+        # receiving side)
+        if C['pulse']['pulse']['send_lsl_markers']:
+            lsl_stream = C['pulse']['lsl']['__outlet']
+
         # generate visual elements
         graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
             C['monitor']['window'], C['runs'][CurrRun]['visuals'])
