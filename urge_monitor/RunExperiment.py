@@ -231,6 +231,10 @@ logging.info(msg="Selected Experiment: " + eName)
 Conf = config.ExperimentConfig(eName, baseDir)
 logging.info(msg='Configuration Interface started, read all configs of exp')
 
+# init LSL
+if Conf['pulse']['pulse']['send_lsl_markers']:
+    devices.LSL.init(Conf['pulse']['lsl']['stream_name'])
+
 ## augment eConf with runtime information and run
 eControl = ExpDlg(Conf)
 del eControl
