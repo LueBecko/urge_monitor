@@ -7,6 +7,8 @@ import config
 import mainloop
 from psychopy import core, logging
 
+import devices
+
 baseDir = os.getcwd()
 
 # Create on module wide app object.
@@ -218,7 +220,7 @@ Are you sure?""", 'Question',
 ################################################################
 ## start basic components
 clock = core.Clock()
-L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=0)
+L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=logging.INFO)
 logging.setDefaultClock(clock)
 
 logging.info(msg='Experiment started')

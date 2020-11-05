@@ -1,4 +1,6 @@
 import copy
+import time
+
 from psychopy import core, logging
 from psychopy.iohub import launchHubServer
 import visuals
@@ -28,34 +30,36 @@ def applyFiringPattern(pulseOutput, configPulse, DH):
 
 class SyncMarkers:
     def __init__(self, cfg_pulse, DH):
+        # defaults: no markers (possibly overwritten below)
+        self.send_out_pulse = False
+        self.sound_begin = None
+        self.sound_end = None
+        self.send_lsl_markers = False
+
         # initialize pulse output
         self.cfg = cfg_pulse
-        self.pulse_out = devices.PulseOutput.createPulseOutput(cfg_pulse)
-        self.pulse_out.initDevice()
-        self.pulse_value = cfg_pulse['out_pulse']['data']
-        applyFiringPattern(self.pulse_out, cfg_pulse, DH)
+        if cfg_pulse['pulse']['send_out_pulse']:
+            self.send_out_pulse = True
+            self.pulse_out = devices.PulseOutput.createPulseOutput(cfg_pulse)
+            self.pulse_out.initDevice()
+            self.pulse_value = cfg_pulse['out_pulse']['data']
+            applyFiringPattern(self.pulse_out, cfg_pulse, DH)
 
         # initialized sound objects
         if cfg_pulse['pulse']['play_sound_begin']:
             self.sound_begin = sound.AudioPeep(cfg_pulse['sound_begin'])
             logging.info('Audio Object (begin) created')
-        else:
-            self.sound_begin = None
 
         if cfg_pulse['pulse']['play_sound_end']:
             self.sound_end = sound.AudioPeep(cfg_pulse['sound_end'])
             logging.info('Audio Object (end) created')
-        else:
-            self.sound_end = None
 
         # initialize LabStreamingLayer
         if cfg_pulse['pulse']['send_lsl_markers']:
             self.send_lsl_markers = True
             self.lsl_marker_begin = cfg_pulse['lsl']['marker_begin']
             self.lsl_marker_end = cfg_pulse['lsl']['marker_end']
-        else:
-            self.send_lsl_markers = False
-
+        
     def send_begin_markers(self):
         logging.info('sending begin markers')
         self.pulse_out.setDataValue(self.pulse_value)
@@ -80,8 +84,9 @@ class UrgeMonitor:
         self.cfg = copy.deepcopy(C)
         self.CurrRun = C['runtime']['curr_run']
         self.DH = DataHandler.DataHandler(C['exp']['info'],
-                                          C['exp']['runs'][CurrRun][0],
-                                          C['exp']['main'], C['runs'][CurrRun])
+                                          C['exp']['runs'][self.CurrRun][0],
+                                          C['exp']['main'],
+                                          C['runs'][self.CurrRun])
         self.graphics = None
 
         try:
@@ -122,6 +127,8 @@ class UrgeMonitor:
             self.IL.RegisterKey(key)
             keyPos[key] = c
         self.IL.GetBufferedKeys()
+
+        print (self.IL.GetBufferedKeys)
         logging.info('Input listener created')
 
     def init_clocks(self):
@@ -149,10 +156,12 @@ class UrgeMonitor:
         if self.ready:
             try:
                 self.reset_clocks()
+                self.recording_complete = threading.Event()
+                self.urge_value = 0.5
+                self.DH.setState(state=DataHandler.STATE.RUNNING)
                 self.start_data_thread()
-                self.start_plot_thread()
-                self.data_thread.join()  # wait for data collection to finish
-                self.plotting_thread.join()  # finish plotting
+                self.plot_loop()
+                #self.plot_thread.join()  # finish plotting
             except Exception as e:
                 self.handle_exception(e)
             else:
@@ -161,11 +170,10 @@ class UrgeMonitor:
     def start_data_thread(self):
         self.data_thread = threading.Thread(target=self.data_loop, daemon=True)
         self.data_thread.start()
-        self.recording_complete = threading.Event()
 
     def start_plot_thread(self):
-        self.plotting_thread = threading.Thread(target=self.plot_loop, daemon=True)
-        self.plotting_thread.start()
+        self.plot_thread = threading.Thread(target=self.plot_loop, daemon=True)
+        self.plot_thread.start()
 
     def data_loop(self):
         logging.info('Starting data loop')
@@ -174,7 +182,7 @@ class UrgeMonitor:
         t = 0.0
 
         while (not self.recording) or (t < self.t_run):
-            if self.PL.Pulse():  # check for start pulse
+            if (not self.recording) and self.PL.Pulse():  # check for start pulse
                 logging.info('Starting recording')
                 self.recording = True
                 self.sync.send_begin_markers()
@@ -196,20 +204,25 @@ class UrgeMonitor:
                                  error_code=DataHandler.ERROR_CODE.SUCCESS)
                 break
 
-        self.recording_complete.set()
         logging.info('leaving main loop')
+        self.sync.send_end_markers()
+        self.recording_complete.set()
+                
 
     def plot_loop(self):
+        logging.info('starting plot loop')
         wait_time = min(self.plotclock_increment, self.frameclock_increment)/2
-        while not self.recording_complete.wait(wait_time):
+        while not self.recording_complete.isSet():
             if self.plotclock.getTime() >= 0.0:  # update plot
                 self.graphics.updateHistoriePlot(self.urge_value)
                 self.plotclock.add(self.plotclock_increment)
 
             if self.frameclock.getTime() >= 0.0:  # flip screen
-                self.graphics.updateUrgeIndicator(self.urge_value)
                 self.graphics.flip()
                 self.frameclock.add(self.frameclock_increment)
+                self.graphics.updateUrgeIndicator(self.urge_value)
+            time.sleep(wait_time)
+        logging.info('ending plot loop')
 
     def handle_exception(self, e):
         print('Error occured')
@@ -229,3 +242,9 @@ class UrgeMonitor:
             DH.setState(state=DataHandler.STATE.FINISHED)
         self.DH.endRecording()
         del self.graphics
+
+
+def MainLoop(C):
+    UM = UrgeMonitor(C)
+    UM.run()
+
