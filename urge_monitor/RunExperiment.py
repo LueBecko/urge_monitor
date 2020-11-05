@@ -9,7 +9,15 @@ from psychopy import core, logging
 
 import devices
 
+# set up logging (TBD: why here??)
+#baseDir = os.path.normpath(os.path.join(os.getcwd(), '..'))
 baseDir = os.getcwd()
+logging.root.format = '%(t)8.3f %(levelname)-8s %(message)s'
+logging_level = logging.DEBUG
+logging.console.setLevel(logging_level)
+base_log_file = os.path.join(baseDir, 'log.txt')
+date_log_file_name = 'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.txt'
+L = logging.LogFile(f=base_log_file, filemode='w', encoding='utf8', level=logging_level)
 
 # Create on module wide app object.
 # Within this programm there is no other position that uses a wx gui.
@@ -243,9 +251,9 @@ del eControl
 logging.info('Closing window, closing all other ressources')
 
 from shutil import copyfile
-import datetime
-copyfile('log.txt', baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep +
-    Conf['exp']['main']['name'] + os.sep +
-    'log-' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + '.txt')
+copyfile(base_log_file, 
+         os.path.join(baseDir, Conf['exp']['main']['log_folder'],  
+                      Conf['exp']['main']['name'],
+                      date_log_file_name))
 
 core.quit()
