@@ -486,7 +486,7 @@ class ExperimentConfig:
             if not isinstance(self.configPul['out_pulse']['address'], int):
                 raise InvalidConfigException(self.pulFile,
                   'pulse-out_pulse-address must be integer & valid LPT address')
-            if not 'data' in list(self.configPul.keys()):
+            if not 'data' in list(self.configPul['out_pulse'].keys()):
                 self.configPul['out_pulse']['data'] = 255
                 warnings.warn('out_pulse-data not given! Set data=255')
             if not isinstance(self.configPul['out_pulse']['data'], int):
