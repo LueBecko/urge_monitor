@@ -55,7 +55,7 @@ class PulseOutputSimulation(PulseOutput):
         self.setDataValue(config['out_pulse']['data'])
 
     def initDevice(self):
-        pass
+        logging.info("initialising simulation out-pulse device (initial data = " + str(self.getDataValue()) + ")")
 
     def sendPulse(self):
         logging.info("sending simulated pulse with data " + str(self.getDataValue()))
