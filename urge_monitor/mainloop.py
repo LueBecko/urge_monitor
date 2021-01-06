@@ -122,9 +122,7 @@ def MainLoop(C):
                 st = sampleclock.getTime()
                 if st >= 0.0:  # recording freq
                     urgevalue = IL.GetUrge()
-                    DH.recordUrge(urgevalue, t, st,
-                        IL.GetBufferedKeys()[1:])
-                    # TODO: send pulse if configured (maybe add as callback to DataHandler, that is executed after record urge automatically)
+                    DH.recordUrge(urgevalue, t, st, IL.GetBufferedKeys()[1:])
                     sampleclock.add(sampleclock_increment)
 
                 if plotclock.getTime() >= 0.0:  # update plot

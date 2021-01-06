@@ -13,9 +13,10 @@ import psychopy.info
 from psychopy import data
 import configparser
 from abc import ABC, abstractmethod
+from enum import Enum
 
 # Status Constants
-class STATE:
+class STATE(Enum):
     STARTED = 'Started'
     RUNNING = 'Running'
     FINISHED = 'Finished'
@@ -24,7 +25,7 @@ class STATE:
     ABORT = 'Abort'  # yet undefined, captures all other abort reasons
 
 
-class ERROR_CODE:
+class ERROR_CODE(Enum):
     NONE = 'None'  # still running
     SUCCESS = 'Success' # run to an end without errors
     ERROR_OTHER = 'Error'  # captures all errors not defined above
@@ -97,9 +98,9 @@ class DataHandler:
         self.__baseInfo['experiment'] = self.__expConfig['name']
         self.__baseInfo['identifier'] = self.__identifier
         self.__baseInfo['runName'] = self.__runName
-        self.__baseInfo['software'] = 'UrgeRating fMRI'
+        self.__baseInfo['software'] = 'Urge-Monitor'
         self.__baseInfo['author'] = 'Christian Beck'
-        self.__baseInfo['version'] = '1.0'
+        self.__baseInfo['version'] = '0.1'
         self.__baseInfo['started'] = True
         self.__baseInfo['finished'] = False
         self.__baseInfo['start_time'] = data.getDateStr(
