@@ -1,5 +1,5 @@
 import unittest
-from PulseOutput import PulseOutput, createPulseOutput, PulseOutputNone, PulseOutputSimulation, PulseOutputParallel
+from urge_monitor.devices.PulseOutput import PulseOutput, createPulseOutput, PulseOutputNone, PulseOutputSimulation, PulseOutputParallel
 
 class PulseOutputFactoryMethodTest(unittest.TestCase):
     def test_NoOutPulse_createsPulseOutputNone(self):

@@ -47,6 +47,7 @@ class PulseOutputParallel(PulseOutput):
         self.__port__.setData(0)
 
     def sendPulse(self):
+        self.__port__ = parallel.ParallelPort(address=self.__address__)
         self.__port__.setData(self.getDataValue())
         core.wait(secs=self.__duration__, hogCPUperiod=self.__duration__)
         self.__port__.setData(0)
