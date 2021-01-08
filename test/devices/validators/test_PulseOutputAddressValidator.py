@@ -1,5 +1,5 @@
 import unittest
-from PulseOutputAddressValidator import PulseOutputAddressValidator
+from urge_monitor.devices.validators.PulseOutputAddressValidator import PulseOutputAddressValidator
 
 class PulseOutputAddressValidatorTest(unittest.TestCase):
     def setUp(self):

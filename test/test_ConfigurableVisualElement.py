@@ -1,5 +1,5 @@
 import unittest
-from .ConfigurableVisualElement import ConfigurableVisualElement
+from urge_monitor.visuals.ConfigurableVisualElement import ConfigurableVisualElement
 
 class ConfigurableVisualElementStub(ConfigurableVisualElement):
 

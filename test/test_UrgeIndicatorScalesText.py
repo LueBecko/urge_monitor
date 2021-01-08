@@ -1,5 +1,5 @@
 import unittest
-from .UrgeIndicatorScalesText import UrgeIndicatorScalesText
+from urge_monitor.visuals.UrgeIndicatorScalesText import UrgeIndicatorScalesText
 
 # TODO: migrate stubs to test helpers class
 class MonitorStub:

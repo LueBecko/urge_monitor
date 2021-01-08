@@ -4,7 +4,7 @@ from psychopy import logging
 
 from enum import Enum
 from abc import ABC, abstractmethod
-from validators import PulseOutputDataValidator, PulseOutputDurationValidator, PulseOutputAddressValidator
+from .validators import PulseOutputValidator
 
 class PulseFiringPattern(Enum):
     ''' possible configurable firing patterns of outgoing pulses '''
@@ -36,13 +36,10 @@ class PulseOutputParallel(PulseOutput):
     '''send pulses via parallel port'''
 
     def __init__(self, config):
-        PulseOutputAddressValidator.PulseOutputAddressValidator().validate(config['address'])
+        PulseOutputValidator.PulseOutputParallelValidator().validate(config)
+
         self.__address__ = config['address']
-
-        PulseOutputDataValidator.PulseOutputDataValidator().validate(config['data'])
         self.setDataValue(config['data'])
-
-        PulseOutputDurationValidator.PulseOutputDurationValidator().validate(config['duration'])
         self.__duration__ = config['duration']
 
     def initDevice(self):
@@ -58,7 +55,8 @@ class PulseOutputSimulation(PulseOutput):
     '''simulates sending pulses for testing purpose. Simulated pulses are written to log'''
 
     def __init__(self, config):
-        PulseOutputDataValidator.PulseOutputDataValidator().validate(config['data'])
+        PulseOutputValidator.PulseOutputSimulationValidator().validate(config)
+
         self.setDataValue(config['data'])
 
     def initDevice(self):
@@ -69,6 +67,10 @@ class PulseOutputSimulation(PulseOutput):
 
 class PulseOutputNone(PulseOutput):
     '''no pulse are send. Passive class for no out pulse configuration'''
+
+    def __init__(self):
+        self.__data__ = 0
+
     def initDevice(self):
         pass
 
@@ -78,8 +80,8 @@ class PulseOutputNone(PulseOutput):
 def createPulseOutput(pulseConfig):
     if pulseConfig['pulse']['send_out_pulse']:
         if pulseConfig['pulse']['simulation']:
-            return PulseOutputSimulation(pulseConfig['out_pulse'])
+            return PulseOutputSimulation(pulseConfig.get('out_pulse'))
         else:
-            return PulseOutputParallel(pulseConfig['out_pulse'])
+            return PulseOutputParallel(pulseConfig.get('out_pulse'))
     else:
         return PulseOutputNone()

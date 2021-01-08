@@ -1,5 +1,5 @@
 import unittest
-from .IntegerValidator import IntegerValidator
+from urge_monitor.visuals.validators.IntegerValidator import IntegerValidator
 
 class IntegerValidatorTest(unittest.TestCase):
     def setUp(self):

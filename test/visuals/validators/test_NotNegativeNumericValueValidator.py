@@ -1,5 +1,5 @@
 import unittest
-from .NotNegativeNumericValueValidator import NotNegativeNumericValueValidator
+from urge_monitor.visuals.validators.NotNegativeNumericValueValidator import NotNegativeNumericValueValidator
 
 class NotNegativeNumericValueValidatorTest(unittest.TestCase):
     def setUp(self):

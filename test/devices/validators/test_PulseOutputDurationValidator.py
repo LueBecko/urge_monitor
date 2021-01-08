@@ -1,5 +1,5 @@
 import unittest
-from PulseOutputDurationValidator import PulseOutputDurationValidator
+from urge_monitor.devices.validators.PulseOutputDurationValidator import PulseOutputDurationValidator
 
 class PulseOutputDurationValidatorTest(unittest.TestCase):
     def setUp(self):

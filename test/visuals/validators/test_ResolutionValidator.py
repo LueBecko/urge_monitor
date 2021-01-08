@@ -1,5 +1,5 @@
 import unittest
-from .ResolutionValidator import ResolutionValidator
+from urge_monitor.visuals.validators.ResolutionValidator import ResolutionValidator
 
 class ResolutionValidatorTest(unittest.TestCase):
     def setUp(self):

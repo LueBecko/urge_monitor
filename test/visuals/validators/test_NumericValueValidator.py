@@ -1,5 +1,5 @@
 import unittest
-from .NumericValueValidator import NumericValueValidator
+from urge_monitor.visuals.validators.NumericValueValidator import NumericValueValidator
 
 class NumericValueValidatorTest(unittest.TestCase):
     def test_validate_integer_passes(self):
