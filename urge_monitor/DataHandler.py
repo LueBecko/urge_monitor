@@ -11,7 +11,7 @@ import math
 import csv
 import psychopy.info
 from psychopy import data
-import ConfigParser
+import configparser
 
 
 # Status Constants
@@ -79,13 +79,13 @@ class DataHandler:
 
     def __gatherInitialInf__(self):
         # gather Infos
-        SysInf = psychopy.info.RunTimeInfo(
-            #author='Christian Beck',
-            #version='prototype, 0.1',
-            win=False,
-            refreshTest=True,
-            userProcsDetailed=True,
-            verbose=True)
+        SysInf = None
+        # this is currenlty deactivated because it fails on german windows systems
+        #psychopy.info.RunTimeInfo(
+        #    win=False,
+        #    refreshTest=True,
+        #    userProcsDetailed=True,
+        #    verbose=True)
 
         self.__baseInfo = {}
         self.__baseInfo['experiment'] = self.__expConfig['name']
@@ -96,7 +96,6 @@ class DataHandler:
         self.__baseInfo['version'] = '1.0'
         self.__baseInfo['started'] = True
         self.__baseInfo['finished'] = False
-        #self.__baseInfo['start_time'] = SysInf['experimentRunTime']
         self.__baseInfo['start_time'] = data.getDateStr(
             format="%Y_%m_%d %H:%M (Year_Month_Day Hour:Min)")
         self.__baseInfo['end_time'] = 'Not reached'
@@ -106,11 +105,10 @@ class DataHandler:
         self.__baseInfo['data_file_written'] = False
 
         self.__writeInfo__(SysInf=SysInf)
-        #self.__writeInfo__()
 
     def __writeInfo__(self, SysInf=None):
         if self.__infWriter is None:
-            self.__infWriter = ConfigParser.RawConfigParser()
+            self.__infWriter = configparser.RawConfigParser()
 
         section_main = 'main'
         if not self.__infWriter.has_section(section_main):
@@ -161,7 +159,6 @@ class DataHandler:
         return self.__currentState
 
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
-        #  print(self.__csvData)
         self.__csvData[self.__currSample] = [urgevalue, rec_time, lag] + buttons
         self.__currSample = self.__currSample + 1
 

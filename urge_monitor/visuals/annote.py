@@ -2,6 +2,7 @@
 
 from psychopy import visual
 from . import helpers
+from .validators.PositionValidator import PositionValidator
 
 
 # both vars are static class members
@@ -13,9 +14,10 @@ def AddAnnote(name, text, pos, size, col):
     # asserts
     assert isinstance(name, str)
     assert isinstance(text, str)
-    helpers.__assert_position__(pos)
+    PositionValidator().validate(pos)
     assert isinstance(size, (float, int))
-    helpers.__assert_color__[__win.colorSpace](col)
+    validator = helpers.ColorValidator()
+    validator.validateColor(__win.colorSpace, col)
     assert name not in drawable
     # create graphical object
     drawable[name] = visual.TextStim(__win,
@@ -31,8 +33,8 @@ def AddAnnote(name, text, pos, size, col):
         antialias=True,
         bold=False,
         italic=False,
-        alignHoriz='center',
-        alignVert='center',
+        anchorHoriz='center',
+        anchorVert='center',
         wrapWidth=None,
         flipHoriz=False,
         flipVert=False,

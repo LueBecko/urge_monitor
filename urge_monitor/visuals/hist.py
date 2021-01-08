@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# TODO: Make this a class that is called by Visuals
 from psychopy import visual
 from . import helpers
 
@@ -32,10 +31,9 @@ def CreateHist(win, conf):
     else:
         conf['hist_line_width'] = 2
     if 'hist_col' in conf:
-        helpers.__assert_color__[win.colorSpace](conf['hist_col'])
+        helpers.ColorValidator().validateColor(win.colorSpace, conf['hist_col'])
     else:
-        conf['hist_col'] = (
-            helpers.__rgb255_to_colspace[win.colorSpace]([255, 255, 255]))
+        conf['hist_col'] = helpers.ColorspaceTransformator().colorspace_to_colorspace('rgb255', win.colorSpace, [255, 255, 255])
     if 'hist_side' in conf:
         assert isinstance(conf['hist_side'], str)
         conf['hist_side'] = conf['hist_side'].lower()
