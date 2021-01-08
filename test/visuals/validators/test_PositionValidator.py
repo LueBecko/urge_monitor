@@ -1,5 +1,5 @@
 import unittest
-from .PositionValidator import PositionValidator
+from urge_monitor.visuals.validators.PositionValidator import PositionValidator
 
 class PositionValidatorTest(unittest.TestCase):
     def setUp(self):

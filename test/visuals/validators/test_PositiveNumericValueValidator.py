@@ -1,5 +1,5 @@
 import unittest
-from .PositiveNumericValueValidator import PositiveNumericValueValidator
+from urge_monitor.visuals.validators.PositiveNumericValueValidator import PositiveNumericValueValidator
 
 class PositiveNumericValueValidatorTest(unittest.TestCase):
     def test_validate_positiveInteger_passes(self):

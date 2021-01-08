@@ -1,5 +1,5 @@
 import unittest
-from . import UrgeIndicator
+from urge_monitor.visuals import UrgeIndicator
 
 class MonitorStub:
     def getWidth(self):

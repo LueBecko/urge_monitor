@@ -1,5 +1,5 @@
 import unittest
-from .ColorSpaceValidator import ColorSpaceValidator
+from urge_monitor.visuals.validators.ColorSpaceValidator import ColorSpaceValidator
 
 class ColorSpaceValidatorTest(unittest.TestCase):
     def setUp(self):

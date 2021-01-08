@@ -238,11 +238,30 @@ This file only contains one section: \verb|[input]|. One entry is always present
 
 \section{pulse.ini}
 
-\textit{pulse.ini} contains all parameters regarding pulses send by the scanner. It contains one section \verb|[pulse]|, which contains top level information on pulse configuration. It contains the item \verb|simulation| (a boolean which indicates if pulse actually meassured - False - or generated artificially 2.5 sec after run start - True), the item \verb|interface| (a string defining the interface to use to meassure pulses), \verb|play_sound_begin| (a boolean which indicates if the stimulation computer starts playing a beep on receiving the first pulse - for synchronizing with the video capture system), \verb|play_sound_end| (a boolean which indicates if the stimulation computer starts playing a beep on ending a run - for synchronizing with the video capture system) and \verb|send_out_pulse| (a boolean indicating if an out pulse should for synchornisytion purposes). \verb|interface| can be any of the following: \verb|parallel|, \verb|serial| or \verb|keyboard|.
+\textit{pulse.ini} contains all parameters regarding pulses send to external devices and received from external devices. It contains one section \verb|[pulse]|, which contains top level information on pulse configuration. It contains 
+\begin{itemize}
+	\item \verb|simulation| a boolean which indicates if pulse actually meassured - False - or generated artificially 2.5 sec after run start - True
+	\item \verb|interface| a string defining the device interface for send and recieve pulses 
+	\begin{itemize}
+		\item \verb|parallel| parallel port
+		\item \verb|serial| serial port
+		\item \verb|keyboard| pulse is coupled to a keyboard key
+	\end{itemize}
+	\item \verb|send_out_pulse|  a boolean indicating if an out pulse should for synchornisytion purposes
+	\item \verb|firing_pattern|  a text which indicates how to pulses are fired
+	\begin{itemize}
+		\item \verb|NONE|  no additional firing of pulses is performed
+		\item \verb|ON_URGE_RECORD|  send an pulse with urge data, after each urge record event
+	\end{itemize}  
+	\item \verb|play_sound_begin|  a boolean which indicates if the stimulation computer starts playing a beep on receiving the first pulse - for synchronizing with the video capture system
+	\item \verb|play_sound_end|  a boolean which indicates if the stimulation computer starts playing a beep on ending a run - for synchronizing with the video capture system
+\end{itemize}
 
 \textbf{Note:} In future versions the simulation parameter might get replaced by a simulation interface.
 
-\textbf{Note:} The complete sound-configuration has grwon into the pulse configuration. In futur version sound configuration might be mived to a seperate config file for clearity.
+\textbf{Note:} The complete sound-configuration has grown into the pulse configuration. In futur version sound configuration might be moved to a seperate config file for clearity.
+
+\textbf{Note:} The parameter \verb|send_out_pulse| will become obsolete and will emerge into a separate \verb|firing_pattern|
 
 Each of the above interfaces is configured in an additional section with its name. So when choosing a \verb|parallel| interface the file \textit{pulse.ini} also needs to contain a section named \verb|[parallel]|. (see figure \ref{fig:pulseiniparallel})
 
@@ -296,7 +315,7 @@ The section \verb|out_pulse| is optional and only needed if \verb|out_pulse| is 
 			\begin{verbatim}
 			[pulse]
 			simulation = True
-			interface = "parallel"
+			interface = "serial"
 			play_sound = True
 			
 			[serial]
@@ -327,14 +346,6 @@ The section \verb|out_pulse| is optional and only needed if \verb|out_pulse| is 
 
 \textit{monitor.ini} contains information about the physical monitor device, but also about the virtual render target presented on the monitor. It contains two sections: \verb|[monitor]| and \verb|[window]|. (See figure \ref{fig:monitorini})
 
-\verb|[monitor]| contains the following items: \verb|name| (used to identify the monitor and to load monitor calibration data if known to PsychoPy, on monitor calibration see: \url{http://www.psychopy.org/general/monitors.html}), \verb|distance| (float, physical distance from eyes of the subject to the presentation monitor in cm, $\ge 0.0$), \verb|width| (float, horizonztal width of the monitor in cm, $\ge 0.0$) and \verb|resolution| (a list of two positive integer values). \verb|distance| and \verb|width| are both needed to compute the correct presentation sizes in degrees of the visual field.
-
-\verb|[window]| contains items describing the virtual render target located on the monitor. It contains the items: \verb|fullscr| (boolean, set render screen as fullscreen), \verb|resolution| (a list of two positive integer values, if fullscreen is set those values will be set to the monitor resolution), \verb|color_space| (sets the color space for all visual elemetns of the experiment, color space identifier is one of \verb|'rgb'|, \verb|'reg255'|, \verb|'hsv'|; defaults to \verb|'reg255'|) and \verb|screen| (integer identifying the screen on which to present the window). More on color spaces: \ref{sec:color_spaces} \nameref{sec:color_spaces}.
-
-\textbf{NOTE:} Check that the value of \verb|screen| corresponds to the same physical monitor as the configuration parameters from \verb|[monitor]|.
-
-\textbf{NOTE:} In future versions the parameter \verb|color_space| might be moved to \textit{defaults.ini} for more contengency.
-
 \begin{figure}
 	\begin{framed}
 		\begin{verbatim}
@@ -354,6 +365,35 @@ The section \verb|out_pulse| is optional and only needed if \verb|out_pulse| is 
 	\caption{An example configuration of \textit{monitor.ini}.}
 	\label{fig:monitorini}
 \end{figure}
+
+\subsection{Monitor parameters}
+
+The monitor object is a representation of the actual monitor used for presentation. This object allows calibration of the displayed color and contrasts (not used in this project since the focus here is not vision but cognition). It also is necessary to work with degrees of visual field as units. A monitor object has the following parameters:
+
+\begin{itemize}
+\item \emph{name} string; name of the monitor (only important when several monitors with calibrations are used)
+\item \emph{resolution} numeric tupel/list of length 2; gives the monitors native resolution
+\item \emph{width} numeric; screen width in cm used to calculate the size of a pixel
+\item \emph{distance} numeric; distance of the viewer to the monitor/projection plane in cm
+\end{itemize}
+
+\subsection{Window parameters}\label{sec:window_par}
+
+The window is the surface on which all visual elements are rendered. It is drawn on a monitor. Window parameters are:
+
+\begin{itemize}
+\item \emph{fullscr} boolean; \emph{True} sets the window to full screen
+\item \emph{resolution} numeric tupel/list of length 2; gives the window resolution, if the window is full screen the resolution should match the monitor resolution 
+\item \emph{col} color of the window background
+\item \emph{color\_space} string; defines the color space which will be used int he whole program, currently supported are: 'rgb', 'rgb255', 'hsv'
+@item \verb|screen| integer; identifying the screen on which to present the window
+\end{itemize}
+
+The selected color space is binding for the whole project (even though the underlying framework allows to use different color spaces within one active window this project does not use this feature for consistency and readability). (see section \ref{sec:color_spaces} \nameref{sec:color_spaces})
+
+\textbf{NOTE:} Check that the value of \verb|screen| corresponds to the same physical monitor as the configuration parameters from \verb|[monitor]|.
+
+\textbf{NOTE:} In future versions the parameter \verb|color_space| might be moved to \textit{defaults.ini} for more contengency.
 
 \subsection{Color spaces}\label{sec:color_spaces}
 
@@ -434,30 +474,6 @@ All visual objects are represented in the program in the following logic: Monito
 \textbf{NOTE:} All visual parameters are usually set with a \emph{*.ini} file (either \textit{defaults.ini} or a run \textit{ini}-file, always in the section \verb|[visuals]|) and remain set that way over the whole runtime. However the underlying class also allows changes of all properties at runtime. In future version the option to dynamically change some of the visual elements (e.g. appearing and disappearing annotations) might be added.
 
 All positions, height and widths (except when noted otherwise) are given in degree of the visual field. Note that size in degrees of the visual field can only be computed correctly if the monitor object is set correct. It is recommended to keep all stimuli within the central visual field, spanning at most 7\degree  in each direction.
-
-%\subsection{Monitor parameters}
-%
-%The monitor object is a representation of the actual monitor used for presentation. This object allows calibration of the displayed color and contrasts (not used in this project since the focus here is not vision but cognition). It also is necessary to work with degrees of visual field as units. A monitor object has the following parameters:
-%
-%\begin{itemize}
-%\item \emph{name} string; name of the monitor (only important when several monitors with calibrations are used)
-%\item \emph{resolution} numeric tupel/list of length 2; gives the monitors native resolution
-%\item \emph{width} numeric; screen width in cm used to calculate the size of a pixel
-%\item \emph{distance} numeric; distance of the viewer to the monitor/projection plane in cm
-%\end{itemize}
-%
-%\subsection{Window parameters}\label{sec:window_par}
-%
-%The window is the surface on which all visual elements are rendered. It is drawn on a monitor. Window parameters are:
-%
-%\begin{itemize}
-%\item \emph{fullscr} boolean; \emph{True} sets the window to full screen
-%\item \emph{resolution} numeric tupel/list of length 2; gives the window resolution, if the window is full screen the resolution should match the monitor resolution 
-%\item \emph{col} color of the window background
-%\item \emph{color\_space} string; defines the color space which will be used int he whole program, currently supported are: 'rgb', 'rgb255', 'hsv'
-%\end{itemize}
-%
-%The selected color space is binding for the whole project (even though the underlying framework allows to use different color spaces within one active window i decided against this usage for consistency and readability). (see section \ref{sec:color_spaces} \nameref{sec:color_spaces})
 
 \subsubsection{Background Parameters}
 

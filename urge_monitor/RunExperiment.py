@@ -240,6 +240,6 @@ from shutil import copyfile
 import datetime
 copyfile('log.txt', baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep +
     Conf['exp']['main']['name'] + os.sep +
-    'log-' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + '.txt')
+    'log-' + datetime.datetime.now().strftime("%Y-%m-%d %H-%M") + '.txt')
 
 core.quit()

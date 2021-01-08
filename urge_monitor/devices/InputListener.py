@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from psychopy.iohub import launchHubServer
-import InputDevice
+from . import InputDevice
 
 class InputListener:
     '''listener for input device events. Allows registration specific input events/key presses to listen to'''
