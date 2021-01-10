@@ -468,34 +468,6 @@ class ExperimentConfig:
             if not __is_numeric_pos__(self.configPul['sound_end']['value']):
                 raise InvalidConfigException(self.pulFile,
                     'sound_end-value must be a positive number')
-        # out pulse config
-        if self.configPul['pulse']['send_out_pulse']:
-            if not 'out_pulse' in list(self.configPul.keys()):
-                raise InvalidConfigException(self.pulFile,
-                    'output pulse configuration required.')
-            if not 'duration' in list(self.configPul['out_pulse'].keys()):
-                self.configPul['sound']['out_pulse'] = 0.01
-                warnings.warn('out_pulse-duration not given! ' +
-                              'Set duration=0.01 (s)')
-            if not __is_numeric_pos__(self.configPul['out_pulse']['duration']):
-                raise InvalidConfigException(self.pulFile,
-                    'out_pulse-duration must be a positive number')
-            if not 'address' in list(self.configPul['out_pulse'].keys()):
-                raise InvalidConfigException(self.pulFile,
-                    'no pulse-out_pulse-address entry')
-            if not isinstance(self.configPul['out_pulse']['address'], int):
-                raise InvalidConfigException(self.pulFile,
-                  'pulse-out_pulse-address must be integer & valid LPT address')
-            if not 'data' in list(self.configPul['out_pulse'].keys()):
-                self.configPul['out_pulse']['data'] = 255
-                warnings.warn('out_pulse-data not given! Set data=255')
-            if not isinstance(self.configPul['out_pulse']['data'], int):
-                raise InvalidConfigException(self.pulFile,
-                  'pulse-out_pulse-data must be integer')
-            if ((self.configPul['out_pulse']['data'] < 0) or
-                (self.configPul['out_pulse']['data'] < 255)):
-                raise InvalidConfigException(self.pulFile,
-                  'pulse-out_pulse-data must be within [0,255]')
 
     def __ValidateRunConf__(self, conf, filename):
         colorValidator = helpers.ColorValidator()
