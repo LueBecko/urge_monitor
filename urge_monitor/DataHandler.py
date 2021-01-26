@@ -152,7 +152,7 @@ class DataHandler:
             self.__infWriter.write(infFile)
 
     def __writeData__(self):
-        with (open(self.__csvFilename, 'w')) as csvfile:
+        with (open(self.__csvFilename, 'w', newline='')) as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
             writer.writerows(self.__csvData)
 
