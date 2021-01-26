@@ -127,8 +127,6 @@ class UrgeMonitor:
             self.IL.RegisterKey(key)
             keyPos[key] = c
         self.IL.GetBufferedKeys()
-
-        print (self.IL.GetBufferedKeys)
         logging.info('Input listener created')
 
     def init_clocks(self):
@@ -225,9 +223,6 @@ class UrgeMonitor:
         logging.info('ending plot loop')
 
     def handle_exception(self, e):
-        print('Error occured')
-        print((type(e)))
-        print((e))
         logging.error(e.__str__())
         self.DH.setState(state=DataHandler.STATE.ERROR,
                          error_code=DataHandler.ERROR_CODE.ERROR_OTHER)

@@ -13,6 +13,7 @@ import psychopy.info
 from psychopy import data
 import configparser
 from abc import ABC, abstractmethod
+import logging
 
 # Status Constants
 class STATE:
@@ -197,7 +198,6 @@ class DataHandler:
         self.__baseInfo['data_file_written'] = False
 
         self.__writeInfo__()
-        if error_code not in [ERROR_CODE.NONE,
-            ERROR_CODE.SUCCESS]:
-            print(error_code)
-        print(msg)
+        if error_code not in [ERROR_CODE.NONE, ERROR_CODE.SUCCESS]:
+            logging.info('Ending recording, unknown error code: ' + str(error_code))
+        logging.info('Ending recording, with message: '+msg)
