@@ -4,6 +4,7 @@ import pylsl as lsl
 
 stream_outlet = None
 
+
 def init(stream_name):
     global stream_outlet
     logging.info('Creating LSL stream: %s' % (stream_name))
