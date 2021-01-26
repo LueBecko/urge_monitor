@@ -28,12 +28,12 @@ class ExpFolderException(BaseException):
 def ExperimentSelector():
     '''starts a little gui window, selection of experiment to run'''
     # read experiment list
-    exp_folder = baseDir + os.sep + 'exp' + os.sep
+    exp_folder = os.path.join(baseDir, 'exp') 
     if not os.path.isdir(exp_folder):
         raise ExpFolderException(exp_folder)
     exps = os.listdir(exp_folder)
     for entry in exps:
-        if not os.path.isdir(exp_folder + entry):
+        if not os.path.isdir(os.path.join(exp_folder , entry)):
             exps.remove(entry)
     if len(exps) == 0:
         raise ExpFolderException(exp_folder)
