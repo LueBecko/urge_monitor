@@ -62,8 +62,9 @@ class SyncMarkers:
         
     def send_begin_markers(self):
         logging.info('sending begin markers')
-        self.pulse_out.setDataValue(self.pulse_value)
-        self.pulse_out.sendPulse()
+        if self.send_out_pulse:
+            self.pulse_out.setDataValue(self.pulse_value)
+            self.pulse_out.sendPulse()
         if self.sound_begin:
             self.sound_begin.play()
         if self.send_lsl_markers:
@@ -71,8 +72,9 @@ class SyncMarkers:
 
     def send_end_markers(self):
         logging.info('sending end markers')
-        self.pulse_out.setDataValue(self.pulse_value)
-        self.pulse_out.sendPulse()
+        if self.send_out_pulse:
+            self.pulse_out.setDataValue(self.pulse_value)
+            self.pulse_out.sendPulse()
         if self.sound_end:
             self.sound_end.play()
         if self.send_lsl_markers:
