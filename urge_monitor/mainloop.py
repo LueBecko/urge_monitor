@@ -1,5 +1,7 @@
 import copy
-from psychopy import core, logging
+import time
+
+from psychopy import core, logging, event
 from psychopy.iohub import launchHubServer
 import visuals
 import DataHandler
@@ -28,38 +30,41 @@ def applyFiringPattern(pulseOutput, configPulse, DH):
 
 class SyncMarkers:
     def __init__(self, cfg_pulse, DH):
+        # defaults: no markers (possibly overwritten below)
+        self.send_out_pulse = False
+        self.sound_begin = None
+        self.sound_end = None
+        self.send_lsl_markers = False
+
         # initialize pulse output
         self.cfg = cfg_pulse
-        self.pulse_out = devices.PulseOutput.createPulseOutput(cfg_pulse)
-        self.pulse_out.initDevice()
-        self.pulse_value = cfg_pulse['out_pulse']['data']
-        applyFiringPattern(self.pulse_out, cfg_pulse, DH)
+        if cfg_pulse['pulse']['send_out_pulse']:
+            self.send_out_pulse = True
+            self.pulse_out = devices.PulseOutput.createPulseOutput(cfg_pulse)
+            self.pulse_out.initDevice()
+            self.pulse_value = cfg_pulse['out_pulse']['data']
+            applyFiringPattern(self.pulse_out, cfg_pulse, DH)
 
         # initialized sound objects
         if cfg_pulse['pulse']['play_sound_begin']:
             self.sound_begin = sound.AudioPeep(cfg_pulse['sound_begin'])
             logging.info('Audio Object (begin) created')
-        else:
-            self.sound_begin = None
 
         if cfg_pulse['pulse']['play_sound_end']:
             self.sound_end = sound.AudioPeep(cfg_pulse['sound_end'])
             logging.info('Audio Object (end) created')
-        else:
-            self.sound_end = None
 
         # initialize LabStreamingLayer
         if cfg_pulse['pulse']['send_lsl_markers']:
             self.send_lsl_markers = True
             self.lsl_marker_begin = cfg_pulse['lsl']['marker_begin']
             self.lsl_marker_end = cfg_pulse['lsl']['marker_end']
-        else:
-            self.send_lsl_markers = False
-
+        
     def send_begin_markers(self):
         logging.info('sending begin markers')
-        self.pulse_out.setDataValue(self.pulse_value)
-        self.pulse_out.sendPulse()
+        if self.send_out_pulse:
+            self.pulse_out.setDataValue(self.pulse_value)
+            self.pulse_out.sendPulse()
         if self.sound_begin:
             self.sound_begin.play()
         if self.send_lsl_markers:
@@ -67,8 +72,9 @@ class SyncMarkers:
 
     def send_end_markers(self):
         logging.info('sending end markers')
-        self.pulse_out.setDataValue(self.pulse_value)
-        self.pulse_out.sendPulse()
+        if self.send_out_pulse:
+            self.pulse_out.setDataValue(self.pulse_value)
+            self.pulse_out.sendPulse()
         if self.sound_end:
             self.sound_end.play()
         if self.send_lsl_markers:
@@ -80,8 +86,9 @@ class UrgeMonitor:
         self.cfg = copy.deepcopy(C)
         self.CurrRun = C['runtime']['curr_run']
         self.DH = DataHandler.DataHandler(C['exp']['info'],
-                                          C['exp']['runs'][CurrRun][0],
-                                          C['exp']['main'], C['runs'][CurrRun])
+                                          C['exp']['runs'][self.CurrRun][0],
+                                          C['exp']['main'],
+                                          C['runs'][self.CurrRun])
         self.graphics = None
 
         try:
@@ -149,23 +156,30 @@ class UrgeMonitor:
         if self.ready:
             try:
                 self.reset_clocks()
+                self.recording_complete = threading.Event()
+                self.aborted = threading.Event()
+                self.urge_value = 0.5
+                self.DH.setState(state=DataHandler.STATE.RUNNING)
                 self.start_data_thread()
-                self.start_plot_thread()
-                self.data_thread.join()  # wait for data collection to finish
-                self.plotting_thread.join()  # finish plotting
+                self.plot_loop()
+                self.data_thread.join()
+                self.finish()
             except Exception as e:
                 self.handle_exception(e)
-            else:
-                self.finish()
+
 
     def start_data_thread(self):
-        self.data_thread = threading.Thread(target=self.data_loop, daemon=True)
+        self.data_thread = threading.Thread(target=self.data_loop_wrapper)
         self.data_thread.start()
-        self.recording_complete = threading.Event()
 
-    def start_plot_thread(self):
-        self.plotting_thread = threading.Thread(target=self.plot_loop, daemon=True)
-        self.plotting_thread.start()
+    def data_loop_wrapper(self):
+        try:
+            self.data_loop()
+        except Exception as e:
+            #self.handle_exception(e)
+            logging.error('error in data loop: '+str(e))
+            self.recording_complete.set()
+            #self.sync.send_end_markers()
 
     def data_loop(self):
         logging.info('Starting data loop')
@@ -173,48 +187,66 @@ class UrgeMonitor:
         self.urge_value = 0.5
         t = 0.0
 
-        while (not self.recording) or (t < self.t_run):
-            if self.PL.Pulse():  # check for start pulse
-                logging.info('Starting recording')
-                self.recording = True
-                self.sync.send_begin_markers()
-                self.sampleclock.reset()
-                self.rtclock.reset()
+        while not (self.PL.Pulse() or self.aborted.isSet()):
+            self.IL.ReadUrge()  # update urge value
+            self.urge_value = self.IL.GetUrge()
+            self.check_kb_quit()
 
+        if not self.aborted.isSet(): 
+            logging.info('Starting recording')
+            self.recording = True
+            self.sync.send_begin_markers()
+            self.sampleclock.reset()
+            self.rtclock.reset()
+
+        while (not self.aborted.isSet()) and (t < self.t_run):
             self.IL.ReadUrge()  # update urge value
             self.urge_value = self.IL.GetUrge()
             t = self.rtclock.getTime()
             
             st = self.sampleclock.getTime()
-            if self.recording and st >= 0.0:  # recording freq
-                self.DH.recordUrge(self.urge_value, t, st,
-                                   self.IL.GetBufferedKeys()[1:])
+            if st >= 0.0:  # recording freq
+                buf_keys = self.IL.GetBufferedKeys()
+                self.DH.recordUrge(self.urge_value, t, st, buf_keys[1:])
                 self.sampleclock.add(self.sampleclock_increment)
+            self.check_kb_quit()
 
-            if self.KeyAbort in self.IL.GetPressedKeys():
-                self.DH.setState(state=DataHandler.STATE.ABORT_USER,
-                                 error_code=DataHandler.ERROR_CODE.SUCCESS)
-                break
-
-        self.recording_complete.set()
+        #else:
+        #    if self.DH.getState() == DataHandler.STATE.RUNNING:
+        #        self.DH.setState(state=DataHandler.STATE.FINISHED)
+        
         logging.info('leaving main loop')
-
+        self.sync.send_end_markers()
+        self.recording_complete.set()
+                
     def plot_loop(self):
+        logging.info('starting plot loop')
         wait_time = min(self.plotclock_increment, self.frameclock_increment)/2
-        while not self.recording_complete.wait(wait_time):
+        while not (self.recording_complete.isSet() or self.aborted.isSet()):
             if self.plotclock.getTime() >= 0.0:  # update plot
                 self.graphics.updateHistoriePlot(self.urge_value)
                 self.plotclock.add(self.plotclock_increment)
 
             if self.frameclock.getTime() >= 0.0:  # flip screen
+                self.frameclock.add(self.frameclock_increment)
                 self.graphics.updateUrgeIndicator(self.urge_value)
                 self.graphics.flip()
-                self.frameclock.add(self.frameclock_increment)
+
+            self.check_kb_quit()
+
+            #if not self.data_thread.isAlive():
+            #    break
+            time.sleep(wait_time)
+        logging.info('ending plot loop')
+
+    def check_kb_quit(self):
+        if self.KeyAbort in self.IL.GetPressedKeys():
+            self.DH.setState(state=DataHandler.STATE.ABORT_USER,
+                             error_code=DataHandler.ERROR_CODE.SUCCESS)
+            logging.info('ABORTED (q)')
+            self.aborted.set()
 
     def handle_exception(self, e):
-        print('Error occured')
-        print((type(e)))
-        print((e))
         logging.error(e.__str__())
         self.DH.setState(state=DataHandler.STATE.ERROR,
                          error_code=DataHandler.ERROR_CODE.ERROR_OTHER)
@@ -226,6 +258,13 @@ class UrgeMonitor:
 
     def finish(self):    
         if self.DH.getState() == DataHandler.STATE.RUNNING:
-            DH.setState(state=DataHandler.STATE.FINISHED)
+            self.DH.setState(state=DataHandler.STATE.FINISHED)
         self.DH.endRecording()
         del self.graphics
+        self.graphics = None
+
+
+def MainLoop(C):
+    UM = UrgeMonitor(C)
+    UM.run()
+

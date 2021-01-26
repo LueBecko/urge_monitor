@@ -19,6 +19,8 @@ class InputListener:
             self.RegisterKey(configuration['key_down'])
         else:
             self.__io__ = launchHubServer()
+            self.__keyboard = self.__io__.devices.keyboard #?
+            self.__io__.clearEvents(b'all')                #?
 
     def __del__(self):
         if not self.__isKeyboard__:
@@ -27,13 +29,19 @@ class InputListener:
     def ReadUrge(self):
         self.__device.readValue()
         if self.__isKeyboard__:
-            for key in self.__device.lastKeys:
-                self.__keyBuf__[self.__keyInd__[key]] = 1
+            #?for key in self.__device.lastKeys:
+            #?    self.__keyBuf__[self.__keyInd__[key]] = 1
+            self.__lastKeys__ = self.__device.lastKeys #?
         else:
-            self.__lastKeys__ = [k for k in self.__keyList__
-                if k in self.__io__.devices.keyboard.state]
-            for key in self.__lastKeys__:
-                self.__keyBuf__[self.__keyInd__[key]] = 1
+            #self.__lastKeys__ = [k for k in self.__keyList__
+            #    if k in self.__io__.devices.keyboard.state]
+            #for key in self.__lastKeys__:
+            #    self.__keyBuf__[self.__keyInd__[key]] = 1
+            self.__lastKeys__ = {k: self.__keyboard.state[k]
+                                 for k in self.__keyList__ if k in self.__keyboard.state}
+
+        for key in self.__lastKeys__:
+             self.__keyBuf__[self.__keyInd__[key]] = 1
 
     def GetUrge(self):
         return self.__device.getValue()

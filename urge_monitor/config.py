@@ -16,6 +16,12 @@ from devices.PulseOutput import PulseFiringPattern
 NONE = PulseFiringPattern.NONE
 ON_URGE_RECORD = PulseFiringPattern.ON_URGE_RECORD
 
+class MyConfigParser (configparser.RawConfigParser):
+    def __init__(self, **kwargs):
+        if 'inline_comment_prefixes' not in kwargs:
+            kwargs['inline_comment_prefixes'] = ('#', ';')
+        configparser.RawConfigParser.__init__(self, **kwargs)
+
 class InvalidConfigException(BaseException):
     '''Exception indicating that some cofig is not setup correctly'''
     def __init__(self, expFile, msg=''):
@@ -74,7 +80,7 @@ class ExperimentConfig:
             raise InvalidConfigException(self.expFolder,
                 'The folder does not contain exp.ini.')
         # start reading the experiment
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.expFile)
         for se in cp.sections():
             self.configExp[se] = {}
@@ -141,7 +147,7 @@ class ExperimentConfig:
             '(monitor.ini). The default monitor file will be used (' +
             self.monFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.monFile)
         for se in cp.sections():
             self.configMon[se] = {}
@@ -209,7 +215,7 @@ class ExperimentConfig:
             '(input.ini). The default input file will be used (' +
             self.inpFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.inpFile)
         for se in cp.sections():
             self.configInp[se] = {}
@@ -276,7 +282,7 @@ class ExperimentConfig:
             '(pulse.ini). The default pulse file will be used (' +
             self.pulFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.pulFile)
         for se in cp.sections():
             self.configPul[se] = {}
@@ -410,6 +416,41 @@ class ExperimentConfig:
                     raise InvalidConfigException(self.pulFile,
                        'pulse-serial-inter_byte_timeout must be ' +
                        ' positive number')
+
+        # lsl settings    
+        if 'send_lsl_markers' not in list(self.configPul['pulse'].keys()):
+            self.configPul['pulse']['send_lsl_markers'] = False
+            warnings.warn('pulse-send_lsl_markers not given! Setting to False')
+        if not isinstance(self.configPul['pulse']['send_lsl_markers'], bool):
+            raise InvalidConfigException(self.pulFile,
+                'pulse-send_lsl_markers must be boolean')
+        if self.configPul['pulse']['send_lsl_markers']:
+            if 'lsl' not in list(self.configPul.keys()):    
+                warnings.warn('pulse-send_lsl_marker set to True,' +
+                    'but no lsl configuration given' +
+                    'Default values will be used.')
+                self.configPul['lsl'] = {}   
+            if 'stream_name' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['stream_name'] = 'UrgeMonitor'
+                warnings.warn('lsl-stream_name not given! Setting to UrgeMonitor')
+            if not isinstance(self.configPul['lsl']['stream_name'], str):
+                raise InvalidConfigException(self.pulFile,
+                    'lsl-stream_name must be a string')
+            if 'marker_begin' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['marker_begin'] = 'urge_begin'
+                warnings.warn('lsl-marker_begin not given! Setting to urge_begin')
+            if not isinstance(self.configPul['lsl']['marker_begin'], str):
+                self.configPul['lsl']['marker_begin'] = str(self.configPul['lsl']['marker_begin'])
+                warnings.warn('lsl-marker_begin converted to string')
+            if 'marker_end' not in list(self.configPul['lsl'].keys()):
+                self.configPul['lsl']['marker_end'] = 'urge_end'
+                warnings.warn('lsl-marker_end not given! Setting to urge_end')
+            if not isinstance(self.configPul['lsl']['marker_end'], str):
+                self.configPul['lsl']['marker_end'] = str(self.configPul['lsl']['marker_end'])
+                warnings.warn('lsl-marker_end converted to string')
+
+
+
         # keyboard
         elif self.configPul['pulse']['interface'] == 'keyboard':
             if not 'key' in list(self.configPul['keyboard'].keys()):
@@ -810,7 +851,7 @@ class ExperimentConfig:
             '(defaults.ini). The default defaults file will be used (' +
             self.defFile + ')')
         # read
-        cp = configparser.RawConfigParser()
+        cp = MyConfigParser()
         cp.read(self.defFile)
         for se in cp.sections():
             self.configDef[se] = {}
@@ -827,7 +868,7 @@ class ExperimentConfig:
                 self.configRuns[-1][se] = {}
                 self.configRuns[-1][se].update(self.configDef[se])
             if len(eval(run[1])) > 0:
-                cp = configparser.RawConfigParser()
+                cp = MyConfigParser()
                 cp.read(self.expFolder + os.sep + eval(run[1]))
                 for se in cp.sections():
                     for it in cp.options(se):
