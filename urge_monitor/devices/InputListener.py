@@ -2,11 +2,14 @@
 
 from psychopy.iohub import launchHubServer
 from . import InputDevice
+from psychopy import logging
+
 
 class InputListener:
     '''listener for input device events. Allows registration specific input events/key presses to listen to'''
 
     def __init__(self, configuration, window):
+        logging.info('Creating input listener')
         self.__device = InputDevice.CreateInputDevice(configuration, window)
         self.__isKeyboard__ = str(configuration['device']).lower().startswith('keyboard')
         # prepare keyboard for reading other keys
@@ -15,9 +18,11 @@ class InputListener:
         self.__keyInd__ = {}
         self.__keyBuf__ = []
         if self.__isKeyboard__:
+            logging.info('Keyboard registration')
             self.RegisterKey(configuration['key_up'])
             self.RegisterKey(configuration['key_down'])
         else:
+            logging.info('Launching hub server')
             self.__io__ = launchHubServer()
             self.__keyboard = self.__io__.devices.keyboard #?
             self.__io__.clearEvents(b'all')                #?
@@ -25,6 +30,12 @@ class InputListener:
     def __del__(self):
         if not self.__isKeyboard__:
             self.__io__.quit()
+
+    def ResetUrge(self):
+        logging.info('Resetting urge')
+        self.__device.resetValue()
+        self.ReadUrge()
+        self.GetUrge()
 
     def ReadUrge(self):
         self.__device.readValue()

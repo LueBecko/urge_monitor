@@ -2,7 +2,9 @@ from psychopy import event
 from psychopy.hardware import joystick
 from psychopy.iohub import launchHubServer
 from abc import ABC, abstractmethod
+from psychopy import logging
 joystick.backend = 'pyglet'
+
 
 class InputDeviceAbstract(ABC):
     '''all input devices implement this interface
@@ -13,6 +15,7 @@ class InputDeviceAbstract(ABC):
     '''
 
     __deviceName = 'Device'
+    _startValue = 0.5
 
     @abstractmethod
     def readValue(self):
@@ -22,6 +25,10 @@ class InputDeviceAbstract(ABC):
     @abstractmethod
     def getValue(self):
         '''access the read value from the specific input device'''
+        pass
+
+    def resetValue(self):
+        '''reset value to start value (only relevant for relative devices)'''
         pass
 
 
@@ -59,8 +66,8 @@ class InputDeviceMousePosRel(InputDeviceAbstract):
 
     def __init__(self, win, sensitivity):
         self.__mouse = event.Mouse(visible=False, newPos=(0, 0), win=win)
-        self.__pos = 0.5
         self.__stepWidth = sensitivity
+        self.resetValue()
 
     def readValue(self):
         self.p = self.__mouse.getRel()[1]
@@ -68,6 +75,13 @@ class InputDeviceMousePosRel(InputDeviceAbstract):
     def getValue(self):
         self.__pos = min(1.0, max(0.0, self.__pos + self.p * self.__stepWidth))
         return self.__pos
+
+    def resetValue(self):
+        self.__pos = self._startValue
+        self.__mouse.getRel()    # reset relative mouse position
+        self.readValue()
+        self.getValue()
+        logging.info('Reset value, new value: %.2f / %.2f' % (self.p, self.__pos))
 
     def __del__(self):
         pass  # no deletion necessary
@@ -80,8 +94,8 @@ class InputDeviceMouseWheel(InputDeviceAbstract):
 
     def __init__(self, win, sensitivity):
         self.__mouse = event.Mouse(visible=False, newPos=(0, 0), win=win)
-        self.__pos = 0.5
         self.__stepWidth = sensitivity
+        self.resetValue()
 
     def readValue(self):
         self.p = self.__mouse.getWheelRel()[1]
@@ -89,6 +103,10 @@ class InputDeviceMouseWheel(InputDeviceAbstract):
     def getValue(self):
         self.__pos = min(1, max(0, self.__pos + self.p * self.__stepWidth))
         return self.__pos
+
+    def resetValue(self):
+        self.__mouse.getRel()    # reset relative mouse position to avoid jump at start
+        self.__pos = self._startValue
 
     def __del__(self):
         pass  # no deletion necessary
@@ -100,9 +118,13 @@ class InputDeviceAuto(InputDeviceAbstract):
     __deviceName = 'Auto'
 
     def __init__(self, sensitivity):
-        self.__pos = 0.5
         self.__stepWidth = sensitivity
         self.__direction = 1.0
+        self.resetValue()
+
+    def resetValue(self):
+        self.__mouse.getRel()    # reset relative mouse position to avoid jump at start
+        self.__pos = self._startValue
 
     def readValue(self):
         self.__pos = self.__pos + self.__direction * self.__stepWidth
@@ -126,7 +148,6 @@ class InputDeviceJoystick(InputDeviceAbstract):
     __deviceName = 'Joystick'
 
     def __init__(self, name, sensitivity, axishat, channelid):
-        self.__pos = 0.5
         self.__stepWidth = sensitivity
         Joysticks = {}
         nJoy = joystick.getNumJoysticks()
@@ -142,6 +163,11 @@ class InputDeviceJoystick(InputDeviceAbstract):
             self.__readValue = lambda self: self.readValueHat()
             self.__deviceName += '_Hat' + str(channelid)
         self.__channelid = channelid
+        self.resetValue()
+
+    def resetValue(self):
+        self.__mouse.getRel()    # reset relative mouse position to avoid jump at start
+        self.__pos = self._startValue
 
     def readValue(self):
         pass
@@ -201,7 +227,11 @@ class InputDeviceKeyboard(InputDeviceAbstract):
     def __init__(self, sensitivity, key_up, key_down):
         self.keylist = [key_up, key_down]
         self.__sensitivity = sensitivity
-        self.__pos = 0.5
+        self.resetValue()
+
+    def resetValue(self):
+        self.__mouse.getRel()    # reset relative mouse position to avoid jump at start
+        self.__pos = self._startValue
 
     def readValue(self):
         self.lastKeys.update(set(event.getKeys(keyList=self.keylist)))
@@ -229,11 +259,16 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
     def __init__(self, sensitivity, key_up, key_down):
         self.keylist = [key_up, key_down]
         self.__sensitivity = sensitivity
-        self.__pos = 0.5
         # prepare iohub for recording
         self.__io = launchHubServer()
         self.__keyboard = self.__io.devices.keyboard
         self.__io.clearEvents('all')
+
+        self.resetValue()
+
+    def resetValue(self):
+        self.__mouse.getRel()    # reset relative mouse position to avoid jump at start
+        self.__pos = self._startValue
 
     def readValue(self):
         self.lastKeys.update(self.__keyboard.state)
