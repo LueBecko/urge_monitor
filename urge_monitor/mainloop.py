@@ -105,23 +105,27 @@ class UrgeMonitor:
         self.graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
                                                 C['monitor']['window'],
                                                 C['runs'][self.CurrRun]['visuals'])
+
         logging.info(msg='graphical objects generated')
 
-        self.init_input_listener()
-
-        self.PL = devices.PulseListener.PulseListener(C['pulse'], self.IL)
-        logging.info('PulseListener created')
-        
         # initialize sync markers
         self.sync = SyncMarkers(C['pulse'], self.DH)
 
         # initialize clocks
         self.init_clocks()
+
+        # init input devices
+        logging.info('Initializing devices')
+        self.init_input_listener()
+        self.PL = devices.PulseListener.PulseListener(C['pulse'], self.IL)
+        logging.info('PulseListener created')
+
         self._ready = True
 
     def init_input_listener(self):
         self.IL = devices.InputListener.InputListener(self.cfg['input'],
                                                       self.graphics.getWindow())
+        logging.info('Input listener created')
         self.KeyAbort = self.cfg['exp']['main']['abort_key']
         self.IL.RegisterKey(self.KeyAbort)
         keyPos = {}
@@ -129,7 +133,8 @@ class UrgeMonitor:
             self.IL.RegisterKey(key)
             keyPos[key] = c
         self.IL.GetBufferedKeys()
-        logging.info('Input listener created')
+        logging.info('Initialized keyboard')
+        logging.info('Reset urge value')
 
     def init_clocks(self):
         control = self.cfg['runs'][self.CurrRun]['control']
@@ -141,6 +146,9 @@ class UrgeMonitor:
         self.sampleclock = core.Clock()
         self.t_run = float(control['run_time'])
         self.rtclock = core.Clock()
+        self.idle_time = min(self.plotclock_increment,
+                             self.sampleclock_increment,
+                             self.frameclock_increment)/2
 
     def reset_clocks(self):
         self.frameclock.reset()
@@ -160,6 +168,7 @@ class UrgeMonitor:
                 self.aborted = threading.Event()
                 self.urge_value = 0.5
                 self.DH.setState(state=DataHandler.STATE.RUNNING)
+                self.graphics.flip()  # this seems to be relevant for resetting the rel mouse pos...
                 self.start_data_thread()
                 self.plot_loop()
                 self.data_thread.join()
@@ -184,13 +193,15 @@ class UrgeMonitor:
     def data_loop(self):
         logging.info('Starting data loop')
         self.recording = False
+        self.IL.ResetUrge()
         self.urge_value = 0.5
         t = 0.0
-
+       
         while not (self.PL.Pulse() or self.aborted.isSet()):
             self.IL.ReadUrge()  # update urge value
             self.urge_value = self.IL.GetUrge()
             self.check_kb_quit()
+            self.dummy_wait()
 
         if not self.aborted.isSet(): 
             logging.info('Starting recording')
@@ -210,18 +221,18 @@ class UrgeMonitor:
                 self.DH.recordUrge(self.urge_value, t, st, buf_keys[1:])
                 self.sampleclock.add(self.sampleclock_increment)
             self.check_kb_quit()
+            self.dummy_wait()
 
         #else:
         #    if self.DH.getState() == DataHandler.STATE.RUNNING:
         #        self.DH.setState(state=DataHandler.STATE.FINISHED)
         
-        logging.info('leaving main loop')
+        logging.info('leaving data loop')
         self.sync.send_end_markers()
         self.recording_complete.set()
                 
     def plot_loop(self):
         logging.info('starting plot loop')
-        wait_time = min(self.plotclock_increment, self.frameclock_increment)/2
         while not (self.recording_complete.isSet() or self.aborted.isSet()):
             if self.plotclock.getTime() >= 0.0:  # update plot
                 self.graphics.updateHistoriePlot(self.urge_value)
@@ -233,10 +244,10 @@ class UrgeMonitor:
                 self.graphics.flip()
 
             self.check_kb_quit()
+            self.dummy_wait()
 
             #if not self.data_thread.isAlive():
             #    break
-            time.sleep(wait_time)
         logging.info('ending plot loop')
 
     def check_kb_quit(self):
@@ -245,6 +256,9 @@ class UrgeMonitor:
                              error_code=DataHandler.ERROR_CODE.SUCCESS)
             logging.info('ABORTED (q)')
             self.aborted.set()
+        
+    def dummy_wait(self):
+        time.sleep(self.idle_time)
 
     def handle_exception(self, e):
         logging.error(e.__str__())
