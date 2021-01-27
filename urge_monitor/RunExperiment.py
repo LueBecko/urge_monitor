@@ -14,7 +14,7 @@ baseDir = os.getcwd()
 logging.root.format = '%(t)8.3f %(levelname)-8s %(message)s'
 logging_level = logging.INFO
 logging.console.setLevel(logging_level)
-base_log_file = os.path.join(baseDir, 'log.txt')
+base_log_file = os.path.join(baseDir, 'logs', 'log.txt')
 date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 date_log_file_name = 'log-' + date_str + '.txt'
 L = logging.LogFile(f=base_log_file, filemode='w',
@@ -233,7 +233,7 @@ Are you sure?""", 'Question',
 ################################################################
 ## start basic components
 clock = core.Clock()
-L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=logging.INFO)
+#L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=logging.INFO)
 logging.setDefaultClock(clock)
 
 logging.info(msg='Experiment started')
