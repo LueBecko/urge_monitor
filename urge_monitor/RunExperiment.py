@@ -169,8 +169,10 @@ Note that no changes will be possible after starting.""")
         dial = wx.MessageDialog(None,
 """Ready?
 Press OK when the system is ready to start.""", 'Question',
-            wx.OK | wx.ICON_QUESTION)  # | wx.NO_DEFAULT
-        dial.ShowModal()
+            wx.OK | wx.CANCEL | wx.ICON_QUESTION)  # | wx.NO_DEFAULT
+
+        if dial.ShowModal() != wx.ID_OK:
+            return
         self.conf['runtime']['curr_run'] = ri
         ## prepare GUI
         if (ri < self.list_run.GetCount() - 1):
