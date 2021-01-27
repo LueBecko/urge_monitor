@@ -10,7 +10,7 @@ class PulseListener:
         self.__sim__ = C['pulse']['simulation']
         if self.__sim__:
             self.__clock__ = core.Clock()
-            self.__clock__.add(1.5)  # 1.5 s time before simulated pulse
+            self.__clock__.add(5)  # 5s time before simulated pulse
         else:
             self.__interface__ = C['pulse']['interface'].lower()
             if self.__interface__ == 'parallel':
