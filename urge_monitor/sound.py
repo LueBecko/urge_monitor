@@ -7,9 +7,9 @@ class AudioPeep:
 
     def __init__(self, C):
         print(('Using %s (with %s)' % (sound.audioLib, sound.audioDriver)))
-        sound.init(rate=44100, stereo=False, buffer=128)
+        sound.init(stereo=False, buffer=128)  # rate=44100, 
         self.peep = sound.Sound(value=C['value'], secs=C['duration'],
-            sampleRate=44100, autoLog=True)
+            autoLog=True)  # sampleRate=44100, 
         self.peep.setVolume(C['volume'], log=False)
 
     def play(self):
