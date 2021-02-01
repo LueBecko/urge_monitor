@@ -5,6 +5,10 @@ from . import InputDevice
 from psychopy import logging
 
 
+# execute this upon loading the package (avoid restarting each time the exp is run)
+__hub_server__ = launchHubServer()
+
+
 class InputListener:
     '''listener for input device events. Allows registration specific input events/key presses to listen to'''
 
@@ -23,13 +27,14 @@ class InputListener:
             self.RegisterKey(configuration['key_down'])
         else:
             logging.info('Launching hub server')
-            self.__io__ = launchHubServer()
+            self.__io__ = __hub_server__ # launchHubServer()
             self.__keyboard = self.__io__.devices.keyboard #?
             self.__io__.clearEvents(b'all')                #?
 
     def __del__(self):
-        if not self.__isKeyboard__:
-            self.__io__.quit()
+        pass
+        #if not self.__isKeyboard__:
+        #    self.__io__.quit()
 
     def ResetUrge(self):
         logging.info('Resetting urge')
