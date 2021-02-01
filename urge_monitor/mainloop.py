@@ -50,9 +50,20 @@ class SyncMarkers:
             self.sound_begin = sound.AudioPeep(cfg_pulse['sound_begin'])
             logging.info('Audio Object (begin) created')
 
+            # also initialize dummy sound 
+            dummy_sound_cfg = cfg_pulse['sound_begin']
+            dummy_sound_cfg['volume'] = 0.0
+            sound.AudioPeep(dummy_sound_cfg).play()
+
         if cfg_pulse['pulse']['play_sound_end']:
             self.sound_end = sound.AudioPeep(cfg_pulse['sound_end'])
             logging.info('Audio Object (end) created')
+
+            # also initialize dummy sound 
+            dummy_sound_cfg = cfg_pulse['sound_end']
+            dummy_sound_cfg['volume'] = 0.0
+            sound.AudioPeep(dummy_sound_cfg).play()
+
 
         # initialize LabStreamingLayer
         if cfg_pulse['pulse']['send_lsl_markers']:
@@ -279,6 +290,8 @@ class UrgeMonitor:
 
 
 def MainLoop(C):
+    logging.info('starting run')
     UM = UrgeMonitor(C)
     UM.run()
+    logging.info('run complete')
 
