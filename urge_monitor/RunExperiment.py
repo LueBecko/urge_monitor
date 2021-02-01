@@ -7,6 +7,7 @@ import wx
 from psychopy import core, logging
 
 import devices
+from shutil import copyfile
 
 # set up logging (TBD: why here??)
 #baseDir = os.path.normpath(os.path.join(os.getcwd(), '..'))
@@ -19,6 +20,12 @@ date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 date_log_file_name = 'log-' + date_str + '.txt'
 L = logging.LogFile(f=base_log_file, filemode='w',
                     encoding='utf8', level=logging_level)
+clock = core.Clock()
+#L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=logging.INFO)
+logging.setDefaultClock(clock)
+start_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+logging.info(msg='Experiment started at %s' % (start_str))
+
 
 import config
 import mainloop
@@ -188,7 +195,9 @@ Press OK when the system is ready to start.""", 'Question',
         self.but_run.Enable()
         self.list_run.Enable()
         self.lbl_status.SetLabel("Status: Ready to start runs\n" +
-            "    Last Run: " + self.runNames[ri])
+                                 "    Last Run: " + self.runNames[ri])
+
+        self.copyLogFile()
 
     def evExitBut(self, e):
         self.Close()
@@ -232,13 +241,18 @@ Are you sure?""", 'Question',
                 flag=wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_LEFT | wx.RIGHT)
         return container
 
+    def copyLogFile(self):
+        logging.flush()
+        logging.info('copy log file to exp/subj folders')
+        exp_folder = os.path.join(baseDir, self.conf['exp']['main']['log_folder'],  
+                                  self.conf['exp']['main']['name'])
+        subj_folder = os.path.join(exp_folder, self.conf['exp']['info']['subj'])
+        copyfile(base_log_file, os.path.join(exp_folder, date_log_file_name))
+        copyfile(base_log_file, os.path.join(subj_folder, date_log_file_name))
+            
+
 ################################################################
 ## start basic components
-clock = core.Clock()
-#L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=logging.INFO)
-logging.setDefaultClock(clock)
-
-logging.info(msg='Experiment started')
 
 eName = ExperimentSelector()
 if eName is None:
@@ -254,10 +268,13 @@ if Conf['pulse']['pulse']['send_lsl_markers']:
 
 ## augment eConf with runtime information and run
 eControl = ExpDlg(Conf)
-del eControl
-logging.info('Closing window, closing all other ressources')
 
-from shutil import copyfile
+logging.info('Closing window, closing all other ressources')
+logging.flush()
+
+del eControl
+
+
 copyfile(base_log_file, 
          os.path.join(baseDir, Conf['exp']['main']['log_folder'],  
                       Conf['exp']['main']['name'],
