@@ -14,3 +14,8 @@ class AudioPeep:
 
     def play(self):
         self.peep.play()
+
+
+# play dummy sound (vol 0)
+startup_cfg = {'value': 880, 'duration': 0.2, 'volume': 0.0}
+AudioPeep(startup_cfg).play()
