@@ -44,10 +44,12 @@ def MainLoop(C):
             c += 1
         IL.GetBufferedKeys()
 
-        PL = devices.PulseListener.PulseListener(C['pulse'], IL)
+        pulseListener = devices.PulseListener.createPulseListener(C['pulse'], IL)
+        pulseListener.initDevice()
         logging.info('PulseListener created')
         pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
         pulseOut.initDevice()
+        logging.info('PulseOutput created')
 
         applyFiringPattern(pulseOut, C['pulse'], DH)
 
@@ -101,7 +103,8 @@ def MainLoop(C):
                 abortRun = True
                 break
 
-            if PL.Pulse():
+            if pulseListener.pulseReceived():
+                pulseListener = None;
                 logging.info('Pulse received')
                 if playPulseSoundbegin:
                     APb.play()
