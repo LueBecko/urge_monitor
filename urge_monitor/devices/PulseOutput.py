@@ -43,11 +43,12 @@ class PulseOutputParallel(PulseOutput):
         self.__duration__ = config['duration']
 
     def initDevice(self):
+        logging.info("initialising parallel out-pulse device (initial data = " + str(self.getDataValue()) + ")")
         self.__port__ = parallel.ParallelPort(address=self.__address__)
-        self.__port__.setData(0)
+        self.__port__.setData(self.getDataValue())
 
     def sendPulse(self):
-        self.__port__ = parallel.ParallelPort(address=self.__address__)
+        logging.info("sending pulse with data " + str(self.getDataValue()))
         self.__port__.setData(self.getDataValue())
         core.wait(secs=self.__duration__, hogCPUperiod=self.__duration__)
         self.__port__.setData(0)
