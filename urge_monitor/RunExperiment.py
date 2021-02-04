@@ -242,8 +242,8 @@ Are you sure?""", 'Question',
         return container
 
     def copyLogFile(self):
-        logging.flush()
         logging.info('copy log file to exp/subj folders')
+        logging.flush()
         exp_folder = os.path.join(baseDir, self.conf['exp']['main']['log_folder'],  
                                   self.conf['exp']['main']['name'])
         subj_folder = os.path.join(exp_folder, self.conf['exp']['info']['subj'])
