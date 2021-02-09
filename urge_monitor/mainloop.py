@@ -52,7 +52,7 @@ class SyncMarkers:
 
             # also initialize dummy sound 
             dummy_sound_cfg = cfg_pulse['sound_begin']
-            dummy_sound_cfg['volume'] = 0.0
+            dummy_sound_cfg['volume'] = 0.01
             sound.AudioPeep(dummy_sound_cfg).play()
 
         if cfg_pulse['pulse']['play_sound_end']:
@@ -61,7 +61,7 @@ class SyncMarkers:
 
             # also initialize dummy sound 
             dummy_sound_cfg = cfg_pulse['sound_end']
-            dummy_sound_cfg['volume'] = 0.0
+            dummy_sound_cfg['volume'] = 0.01
             sound.AudioPeep(dummy_sound_cfg).play()
 
 
