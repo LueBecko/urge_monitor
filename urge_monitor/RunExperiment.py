@@ -181,6 +181,7 @@ Press OK when the system is ready to start.""", 'Question',
         if dial.ShowModal() != wx.ID_OK:
             return
         self.conf['runtime']['curr_run'] = ri
+        logging.info('Selected run: '+ self.runNames[ri])
         ## prepare GUI
         if (ri < self.list_run.GetCount() - 1):
             self.list_run.SetSelection(ri + 1)
@@ -269,6 +270,9 @@ if Conf['pulse']['pulse']['send_lsl_markers']:
 ## augment eConf with runtime information and run
 eControl = ExpDlg(Conf)
 
+# finish up
+end_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+logging.info(msg='Experiment ended at %s' % (end_str))
 logging.info('Closing window, closing all other ressources')
 logging.flush()
 
