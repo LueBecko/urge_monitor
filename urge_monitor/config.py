@@ -8,12 +8,12 @@ from serial import (EIGHTBITS, FIVEBITS, PARITY_EVEN, PARITY_MARK, PARITY_NONE,
                     PARITY_ODD, PARITY_SPACE, SEVENBITS, SIXBITS, STOPBITS_ONE,
                     STOPBITS_ONE_POINT_FIVE, STOPBITS_TWO)
 
-from InvalidConfigurationException import InvalidConfigurationException
-from visuals import helpers 
-from visuals.validators.ResolutionValidator import ResolutionValidator
-from visuals.validators.PositionValidator import PositionValidator
-from visuals.validators.ColorSpaceValidator import ColorSpaceValidator
-from devices.PulseOutput import PulseFiringPattern
+from .InvalidConfigurationException import InvalidConfigurationException
+from .visuals import helpers 
+from .visuals.validators.ResolutionValidator import ResolutionValidator
+from .visuals.validators.PositionValidator import PositionValidator
+from .visuals.validators.ColorSpaceValidator import ColorSpaceValidator
+from .devices.PulseOutput import PulseFiringPattern
 NONE = PulseFiringPattern.NONE
 ON_URGE_RECORD = PulseFiringPattern.ON_URGE_RECORD
 

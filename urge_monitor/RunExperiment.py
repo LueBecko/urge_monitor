@@ -3,11 +3,11 @@
 
 import os
 import wx
-import config
-import mainloop
+from . import config
+from . import mainloop
 from psychopy import core, logging
 
-baseDir = os.getcwd()
+baseDir = os.getcwd() + os.sep + 'urge_monitor'
 
 # Create on module wide app object.
 # Within this programm there is no other position that uses a wx gui.
@@ -165,7 +165,7 @@ Press OK when the system is ready to start.""", 'Question',
         self.lbl_status.SetLabel("Status: Running " + self.runNames[ri] +
             "\n(to abort press " + self.conf['exp']['main']['abort_key'] + ")")
         ## RUN
-        mainloop.MainLoop(self.conf)
+        mainloop.MainLoop(self.conf, baseDir)
         self.runDone[ri] = True
         ## DONE - reset GUI
         self.but_run.Enable()
@@ -218,7 +218,8 @@ Are you sure?""", 'Question',
 ################################################################
 ## start basic components
 clock = core.Clock()
-L = logging.LogFile(f='log.txt', filemode='w', encoding='utf8', level=0)
+intermediateLogFilename = baseDir + os.sep + 'log.txt'
+L = logging.LogFile(f=intermediateLogFilename, filemode='w', encoding='utf8', level=0)
 logging.setDefaultClock(clock)
 
 logging.info(msg='Experiment started')
@@ -238,8 +239,9 @@ logging.info('Closing window, closing all other ressources')
 
 from shutil import copyfile
 import datetime
-copyfile('log.txt', baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep +
-    Conf['exp']['main']['name'] + os.sep +
-    'log-' + datetime.datetime.now().strftime("%Y-%m-%d %H-%M") + '.txt')
+completeLogPath = baseDir + os.sep + Conf['exp']['main']['log_folder'] + os.sep + Conf['exp']['main']['name'] + os.sep
+logFilename = 'log-' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M") + '.txt'
+
+copyfile(intermediateLogFilename, completeLogPath + logFilename)
 
 core.quit()

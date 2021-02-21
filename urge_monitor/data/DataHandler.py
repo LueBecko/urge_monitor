@@ -1,19 +1,13 @@
-# class for data-recording and storing
-#
-# TODO:
-#    csvWriter or DictWriter?
-#    try on file access?
-
 import os.path
 import warnings
 import errno
-import math
-import csv
 import psychopy.info
 from psychopy import data
 import configparser
-from abc import ABC, abstractmethod
 from enum import Enum
+from .UrgeEventListener import UrgeEventListener
+from .CSVDataRecorder import CSVDataRecorder
+from .UrgeLogWriter import UrgeLogWriter
 
 # Status Constants
 class STATE(Enum):
@@ -24,28 +18,38 @@ class STATE(Enum):
     ABORT_USER = 'Aborted by User'
     ABORT = 'Abort'  # yet undefined, captures all other abort reasons
 
-
 class ERROR_CODE(Enum):
     NONE = 'None'  # still running
     SUCCESS = 'Success' # run to an end without errors
     ERROR_OTHER = 'Error'  # captures all errors not defined above
 
-class UrgeRecordEventListener(ABC):
-    '''gets fired after an urge was recorded. Add any action you like'''
-    @abstractmethod
-    def onEvent(self, urgeValue):
-        pass
+def createDataHandler(configuration, baseDirectory, currentRun):
+    '''factory method that takes care of the common setup of the DataHandler'''
+    DH = DataHandler(configuration['exp']['info'],
+        configuration['exp']['runs'][currentRun][0],
+        configuration['exp']['main'],
+        configuration['runs'][currentRun],
+        baseDirectory)
+    DH.registerUrgeRecordListener(
+        CSVDataRecorder(
+            configuration['exp']['main'],
+            configuration['exp']['info']['subj'],
+            configuration['exp']['runs'][currentRun][0],
+            configuration['runs'][currentRun],
+            baseDirectory))
+    DH.registerUrgeRecordListener(UrgeLogWriter())
+    return DH
 
 class DataHandler:
 
-    def __init__(self, info, runName, expConfig, runConfig):
+    def __init__(self, info, runName, expConfig, runConfig, baseDirectory):
         '''Generates DataHandler for all Experiment-Data'''
         self.__expConfig = expConfig
         self.__runConfig = runConfig
         self.__identifier = info['subj']
         self.__runName = runName
         self.__info = info
-        direc = (os.path.dirname(__file__) + os.sep +
+        direc = (baseDirectory + os.sep +
              self.__expConfig['log_folder'] + os.sep +
              self.__expConfig['name'] + os.sep +
              self.__identifier + os.sep)
@@ -56,18 +60,13 @@ class DataHandler:
                 raise exception
         # Never touch an existing file
         self.__infFilename = (direc + self.__runName + '.info')
-        self.__csvFilename = (direc + self.__runName + '.csv')
         i = 0
-        while (os.path.isfile(self.__infFilename) or
-            os.path.isfile(self.__csvFilename)):
+        while (os.path.isfile(self.__infFilename)):
                 i += 1
                 self.__infFilename = (
                     direc + self.__runName + '_' + str(i) + '.info')
-                self.__csvFilename = (
-                    direc + self.__runName + '_' + str(i) + '.csv')
         if i > 0:
-            warnings.warn('Found conflicting log files, wrote on files ' +
-                self.__infFilename + ' and ' + self.__csvFilename)
+            warnings.warn('Found conflicting log files, wrote on file ' + self.__infFilename)
         # states
         self.__currentState = None
         self.__currentErrorCode = None
@@ -75,14 +74,7 @@ class DataHandler:
         # Set First Inf
         self.__infWriter = None
         self.__gatherInitialInf__()
-        # initialise data struct (urge, time, lag)
-        self.nButtons = len(self.__expConfig['log_buttons'])
-        self.nSamples = int(math.floor(1 +
-           self.__runConfig['control']['run_time'] *
-              self.__runConfig['control']['urge_sample_rate']))
-        self.__csvData = [[float('nan')] * (3 + self.nButtons)] * self.nSamples
-        self.__currSample = 0
-        self.__urgeRecordListeners = []
+        self.__urgeEventListeners = []
 
     def __gatherInitialInf__(self):
         # gather Infos
@@ -108,8 +100,6 @@ class DataHandler:
         self.__baseInfo['end_time'] = 'Not reached'
         self.__baseInfo['status'] = self.__currentState
         self.__baseInfo['error_code'] = self.__currentErrorCode
-        self.__baseInfo['data_file'] = self.__csvFilename
-        self.__baseInfo['data_file_written'] = False
 
         self.__writeInfo__(SysInf=SysInf)
 
@@ -151,11 +141,6 @@ class DataHandler:
         with (open(self.__infFilename, 'w')) as infFile:
             self.__infWriter.write(infFile)
 
-    def __writeData__(self):
-        with (open(self.__csvFilename, 'w')) as csvfile:
-            writer = csv.writer(csvfile, dialect='excel')
-            writer.writerows(self.__csvData)
-
     def setState(self, state=None, error_code=None):
         if state is not None:
             self.__currentState = state
@@ -167,15 +152,13 @@ class DataHandler:
 
     def registerUrgeRecordListener(self, listener):
         ''' adds a listener to be fired when an Urge gets recorded'''
-        if isinstance(listener, UrgeRecordEventListener):
-            self.__urgeRecordListeners.append(listener)
+        if isinstance(listener, UrgeEventListener):
+            self.__urgeEventListeners.append(listener)
 
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
         ''' a urge event should be recorded - fires UrgeRecordListeners '''
-        self.__csvData[self.__currSample] = [urgevalue, rec_time, lag] + buttons
-        self.__currSample = self.__currSample + 1
-        for listener in self.__urgeRecordListeners:
-            listener.onEvent(urgevalue)
+        for listener in self.__urgeEventListeners:
+            listener.onEvent(urgevalue, rec_time, lag, buttons)
 
     def passError(self, excep):
         self.__baseInfo['exception'] = excep
@@ -184,9 +167,9 @@ class DataHandler:
     def endRecording(self, state=None, error_code=None, msg=''):
         '''write everything down, record states and errors'''
         self.setState(state, error_code)
-        # write raw data
-        self.__writeData__()
-        self.__baseInfo['data_file_written'] = True
+        # close all listeners
+        for listener in self.__urgeEventListeners:
+            listener.close()
         # report inf
         self.__baseInfo['status'] = self.__currentState
         self.__baseInfo['error_code'] = self.__currentErrorCode
@@ -194,8 +177,6 @@ class DataHandler:
         self.__baseInfo['finished'] = True
         self.__baseInfo['end_time'] = data.getDateStr(
             format="%Y_%m_%d %H:%M (Year_Month_Day Hour:Min)")
-        self.__baseInfo['data_file'] = self.__csvFilename
-        self.__baseInfo['data_file_written'] = False
 
         self.__writeInfo__()
         if error_code not in [ERROR_CODE.NONE,

@@ -1,31 +1,14 @@
 from psychopy import core, logging
-from psychopy.iohub import launchHubServer
-import visuals
-import DataHandler
-import sound
+from . import visuals
+from .data import DataHandler, UrgeEventPulseSender
+from . import sound
+from . import devices
 
-import devices
-
-class UrgeRecordPulseSender(DataHandler.UrgeRecordEventListener):
-    def __init__(self, pulseOutput):
-        assert isinstance(pulseOutput, devices.PulseOutput.PulseOutput)
-        self.__pulseOutput = pulseOutput
-
-    def onEvent(self, urgeValue):
-        self.__pulseOutput.setDataValue(int(urgeValue * 255.0))
-        self.__pulseOutput.sendPulse()
-
-def applyFiringPattern(pulseOutput, configPulse, DH):
-    if ('firing_pattern' in configPulse['pulse'] and configPulse['pulse']['firing_pattern'] == devices.PulseOutput.PulseFiringPattern.ON_URGE_RECORD):
-        DH.registerUrgeRecordListener(UrgeRecordPulseSender(pulseOutput))
-
-def MainLoop(C):
+def MainLoop(C, baseDirectory):
     CurrRun = C['runtime']['curr_run']
-    DH = DataHandler.DataHandler(C['exp']['info'],
-        C['exp']['runs'][CurrRun][0],
-        C['exp']['main'], C['runs'][CurrRun])
-    graphics = None
+    DH = DataHandler.createDataHandler(C, baseDirectory, CurrRun)
 
+    graphics = None
     try:
         # generate visual elements
         graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
@@ -51,7 +34,7 @@ def MainLoop(C):
         pulseOut.initDevice()
         logging.info('PulseOutput created')
 
-        applyFiringPattern(pulseOut, C['pulse'], DH)
+        UrgeEventPulseSender.applyFiringPattern(pulseOut, C['pulse'], DH)
 
         # create sound objects
         playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']

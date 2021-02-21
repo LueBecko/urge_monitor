@@ -39,6 +39,8 @@ class ParallelPulseListener(PulseListener):
 class SerialPulseListener(PulseListener):
     '''receive pulses via serial port'''
 
+    __port__ = None
+
     def initDevice(self):
         '''initialize the specified device'''
         self.__portname__ = self.__config__['port']
@@ -51,7 +53,6 @@ class SerialPulseListener(PulseListener):
         self.__rtscts__ = self.__config__['rtscts']
         self.__dsrdtr__ = self.__config__['dsrdtr']
         self.__inter_byte_timeout__ = self.__config__['inter_byte_timeout']
-        self.__port__ = None
         self.__port__ = serial.Serial(port=self.__portname__,
             baudrate=self.__baudrate__,
             bytesize=self.__bytesize__,
