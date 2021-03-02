@@ -7,9 +7,13 @@ quit_key = 'q'
 start_trigger = 'start_recording'
 end_trigger = 'end_recording'
 sound_cfg = dict(value=880, duration=0.2, volume=1.0)
-message_txt = "Mit Tastendruck geht es los."
+start_txt = "Mit Tastendruck geht es los."
+end_txt = "Vielen Dank!"
 pre_dur = 3
 exp_dur = 300
+
+# logging
+logging.console.setLevel(logging.INFO)
 
 
 class QuitException(Exception):
@@ -18,10 +22,10 @@ class QuitException(Exception):
 
 class DummyExp:
     def __init__(self):
+
         LSL.init('UrgeMonitor')
         self.win = visual.Window([1920, 1080], monitor="dummy", fullscr=True, color='black')
         self.win.mouseVisible = False
-        self.message = visual.TextStim(self.win, text=message_txt)
         self.sound_cue = sound.AudioPeep(sound_cfg)
         self.state = 'none'
 
@@ -35,32 +39,24 @@ class DummyExp:
         LSL.send_marker(end_trigger)
         self.sound_cue.play()
 
-    def show_msg_wait(self):
+    def show_msg_wait(self, txt):
         logging.info('show message')
-        self.message.draw()
+        message = visual.TextStim(self.win, text=txt)
+        message.draw()
         self.win.flip()
         event.waitKeys()
+        self.win.flip()
 
     def wait_period(self, state):
         logging.info('waiting: ' + state)
-        self.win.flip()
         self.state = state
         dur = pre_dur if state == 'pre' else exp_dur
         if event.waitKeys(maxWait=dur, keyList=[quit_key]):
             raise QuitException()
 
-    def finish(self):
-        logging.info('finish up')
-        if self.state == 'exp':
-            self.end_cue()
-            core.wait(2*sound_cfg['duration'])
-        #del self.message
-        self.win.close()
-        core.quit()
-        
     def run(self):
         try:
-            self.show_msg_wait()
+            self.show_msg_wait(start_txt)
             self.wait_period('pre')
             self.start_cue()
             self.wait_period('exp')
@@ -70,7 +66,8 @@ class DummyExp:
             logging.error('some other exception')
             print(e)    
         finally:
-            self.finish()
+            if self.state == 'exp':
+                self.end_cue()
+            self.show_msg_wait(end_txt)
 
-logging.console.setLevel(logging.INFO)
 DummyExp().run()
