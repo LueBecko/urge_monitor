@@ -32,3 +32,4 @@ documentation/*.fdb_latexmk
 urge_monitor/logs/demo_visuals/log-2020-11-05 21
 urge_monitor/logs/TEC4Tic/log-2020-11-05 21
 urge_monitor/logs/urge_fmri/log-2020-11-05 21
+*.txt
