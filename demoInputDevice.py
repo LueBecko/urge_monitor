@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from psychopy import core, visual, gui
-from urge_monitor import InputDevice
+from urge_monitor.devices import InputDevice
 
 deviceDialog = gui.Dlg(title="Select InputDevice demo")
 deviceDialog.addText('Make sure the selected device is present')
