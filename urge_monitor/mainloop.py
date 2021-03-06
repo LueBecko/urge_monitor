@@ -47,7 +47,7 @@ def MainLoop(C, baseDirectory):
             APe = sound.AudioPeep(C['pulse']['sound_end'])
             logging.info('Audio Object (end) created')
 
-        urgevalue = 0.5
+        urgevalue = 0
         graphics.flip()
 
         DH.setState(state=DataHandler.STATE.RUNNING)
