@@ -59,7 +59,7 @@ class InputDeviceMousePosRel(InputDeviceAbstract):
 
     def __init__(self, win, sensitivity):
         self.__mouse = event.Mouse(visible=False, newPos=(0, 0), win=win)
-        self.__pos = 0.5
+        self.__pos = 0
         self.__stepWidth = sensitivity
 
     def readValue(self):
@@ -80,7 +80,7 @@ class InputDeviceMouseWheel(InputDeviceAbstract):
 
     def __init__(self, win, sensitivity):
         self.__mouse = event.Mouse(visible=False, newPos=(0, 0), win=win)
-        self.__pos = 0.5
+        self.__pos = 0
         self.__stepWidth = sensitivity
 
     def readValue(self):
@@ -126,7 +126,7 @@ class InputDeviceJoystick(InputDeviceAbstract):
     __deviceName = 'Joystick'
 
     def __init__(self, name, sensitivity, axishat, channelid):
-        self.__pos = 0.5
+        self.__pos = 0
         self.__stepWidth = sensitivity
         Joysticks = {}
         nJoy = joystick.getNumJoysticks()
@@ -169,7 +169,7 @@ class InputDeviceJoystickAbs(InputDeviceAbstract):
     __deviceName = 'JoystickAbsoluteAxis'
 
     def __init__(self, name, sensitivity, channelid):
-        self.__pos = 0.5
+        self.__pos = 0
         self.__stepWidth = sensitivity
         Joysticks = {}
         nJoy = joystick.getNumJoysticks()
@@ -201,7 +201,7 @@ class InputDeviceKeyboard(InputDeviceAbstract):
     def __init__(self, sensitivity, key_up, key_down):
         self.keylist = [key_up, key_down]
         self.__sensitivity = sensitivity
-        self.__pos = 0.5
+        self.__pos = 0
 
     def readValue(self):
         self.lastKeys.update(set(event.getKeys(keyList=self.keylist)))
@@ -229,7 +229,7 @@ class InputDeviceKeyboardHub(InputDeviceAbstract):
     def __init__(self, sensitivity, key_up, key_down):
         self.keylist = [key_up, key_down]
         self.__sensitivity = sensitivity
-        self.__pos = 0.5
+        self.__pos = 0
         # prepare iohub for recording
         self.__io = launchHubServer()
         self.__keyboard = self.__io.devices.keyboard
