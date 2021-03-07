@@ -1,11 +1,13 @@
 from . import UrgeEventListener
 from ..devices import PulseOutput
 
-def applyFiringPattern(pulseOutputDevice, pulseConfiguration, dataHandler):
+def applyFiringPattern(pulseOutputDevice, pulseConfiguration, runConfiguration, dataHandler):
     ''' configure the given datahandler with respect to the configured firing pattern '''
     if ('firing_pattern' in pulseConfiguration['pulse'] and
         pulseConfiguration['pulse']['firing_pattern'] == PulseOutput.PulseFiringPattern.ON_URGE_RECORD):
-        dataHandler.registerUrgeRecordListener(UrgeEventPulseSender(pulseOutputDevice))
+        low = 1
+        high = 255
+        dataHandler.registerUrgeRecordListener(UrgeEventPulseSender(pulseOutputDevice, UrgeEventPulseTransformator(low, high)))
 
 class UrgeEventPulseTransformator:
     ''' descirbes how to transform the internal urge value to a parallel out pulse value '''

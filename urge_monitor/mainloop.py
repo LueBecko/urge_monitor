@@ -4,47 +4,49 @@ from .data import DataHandler, UrgeEventPulseSender
 from . import sound
 from . import devices
 
-def MainLoop(C, baseDirectory):
-    CurrRun = C['runtime']['curr_run']
-    DH = DataHandler.createDataHandler(C, baseDirectory, CurrRun)
+def MainLoop(configuration, baseDirectory):
+    currentRun = configuration['runtime']['curr_run']
+    currentRunConfiguration = configuration['runs'][currentRun]
+
+    DH = DataHandler.createDataHandler(configuration, baseDirectory, currentRun)
 
     graphics = None
     try:
         # generate visual elements
-        graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
-            C['monitor']['window'], C['runs'][CurrRun]['visuals'])
+        graphics = visuals.Visuals.Visuals(configuration['monitor']['monitor'],
+            configuration['monitor']['window'], currentRunConfiguration['visuals'])
         logging.info(msg='graphical objects generated')
 
         # generate input object
-        IL = devices.InputListener.InputListener(C['input'], graphics.getWindow())
-        KeyAbort = C['exp']['main']['abort_key']
+        IL = devices.InputListener.InputListener(configuration['input'], graphics.getWindow())
+        KeyAbort = configuration['exp']['main']['abort_key']
         IL.RegisterKey(KeyAbort)
         c = 0
         keyPos = {}
-        for key in C['exp']['main']['log_buttons']:
+        for key in configuration['exp']['main']['log_buttons']:
             IL.RegisterKey(key)
             keyPos[key] = c
             c += 1
         IL.GetBufferedKeys()
 
-        pulseListener = devices.PulseListener.createPulseListener(C['pulse'], IL)
+        pulseListener = devices.PulseListener.createPulseListener(configuration['pulse'], IL)
         pulseListener.initDevice()
         logging.info('PulseListener created')
-        pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
+        pulseOut = devices.PulseOutput.createPulseOutput(configuration['pulse'])
         pulseOut.initDevice()
         logging.info('PulseOutput created')
 
-        UrgeEventPulseSender.applyFiringPattern(pulseOut, C['pulse'], DH)
+        UrgeEventPulseSender.applyFiringPattern(pulseOut, configuration['pulse'], currentRunConfiguration, DH)
 
         # create sound objects
-        playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']
+        playPulseSoundbegin = configuration['pulse']['pulse']['play_sound_begin']
         if playPulseSoundbegin:
-            APb = sound.AudioPeep(C['pulse']['sound_begin'])
+            APb = sound.AudioPeep(configuration['pulse']['sound_begin'])
             logging.info('Audio Object (begin) created')
 
-        playPulseSoundend = C['pulse']['pulse']['play_sound_end']
+        playPulseSoundend = configuration['pulse']['pulse']['play_sound_end']
         if playPulseSoundend:
-            APe = sound.AudioPeep(C['pulse']['sound_end'])
+            APe = sound.AudioPeep(configuration['pulse']['sound_end'])
             logging.info('Audio Object (end) created')
 
         urgevalue = 0
@@ -53,14 +55,14 @@ def MainLoop(C, baseDirectory):
         DH.setState(state=DataHandler.STATE.RUNNING)
 
         # generate timers
-        frameclock_increment = 1.0 / C['runs'][CurrRun]['control']['frame_rate']
+        frameclock_increment = 1.0 / currentRunConfiguration['control']['frame_rate']
         frameclock = core.Clock()
-        plotclock_increment = 1.0 / C['runs'][CurrRun]['control']['hist_rate']
+        plotclock_increment = 1.0 / currentRunConfiguration['control']['hist_rate']
         plotclock = core.Clock()
         sampleclock_increment = (1.0 /
-            C['runs'][CurrRun]['control']['urge_sample_rate'])
+            currentRunConfiguration['control']['urge_sample_rate'])
         sampleclock = core.Clock()
-        t_run = float(C['runs'][CurrRun]['control']['run_time'])
+        t_run = float(currentRunConfiguration['control']['run_time'])
 
 ###############################################################
         ## Loop to wait for first pulse
