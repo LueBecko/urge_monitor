@@ -36,7 +36,7 @@ def MainLoop(configuration, baseDirectory):
         pulseOut.initDevice()
         logging.info('PulseOutput created')
 
-        UrgeEventPulseSender.applyFiringPattern(pulseOut, configuration['pulse'], currentRunConfiguration, DH)
+        UrgeEventPulseSender.applyFiringPattern(pulseOut, configuration['pulse'], DH)
 
         # create sound objects
         playPulseSoundbegin = configuration['pulse']['pulse']['play_sound_begin']

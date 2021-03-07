@@ -1,4 +1,5 @@
 import os.path
+from urge_monitor.data.UrgeValueTransformator import UrgeValueTransformator
 import warnings
 import errno
 import psychopy.info
@@ -75,6 +76,20 @@ class DataHandler:
         self.__infWriter = None
         self.__gatherInitialInf__()
         self.__urgeEventListeners = []
+        # value transformator
+        self.__transformator__ = self.__createTransformator__(runConfig)
+
+    def __createTransformator__(self, runConfig):
+        if not 'coded_urge_value_low' in runConfig['control'].keys():
+            low = 1
+        else:
+            low = runConfig['control']['coded_urge_value_low']
+        if not 'coded_urge_value_high' in runConfig['control'].keys():
+            high = 1
+        else:
+            high = runConfig['control']['coded_urge_value_high']
+        transformator = UrgeValueTransformator(low, high)
+        return transformator
 
     def __gatherInitialInf__(self):
         # gather Infos
@@ -157,8 +172,9 @@ class DataHandler:
 
     def recordUrge(self, urgevalue, rec_time, lag, buttons=[]):
         ''' a urge event should be recorded - fires UrgeRecordListeners '''
+        transformedUrgeValue = self.__transformator__.transform(urgevalue);
         for listener in self.__urgeEventListeners:
-            listener.onEvent(urgevalue, rec_time, lag, buttons)
+            listener.onEvent(transformedUrgeValue, rec_time, lag, buttons)
 
     def passError(self, excep):
         self.__baseInfo['exception'] = excep
