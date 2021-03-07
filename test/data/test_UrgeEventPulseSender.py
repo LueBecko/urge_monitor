@@ -2,32 +2,39 @@ import unittest
 from urge_monitor.data.UrgeEventPulseSender import *
 from urge_monitor.devices.PulseOutput import PulseOutputNone
 
-class UrgeEventPulseSenderConstructorTest(unittest.TestCase):
-    def test_constructorWithInvalidParameter_raisesError(self):
+class UrgeEventPulseSenderTest(unittest.TestCase):
+    def test_constructorWithInvalidParameterPulseOutput_raisesError(self):
         with self.assertRaises(AssertionError): UrgeEventPulseSender(None)
         with self.assertRaises(AssertionError): UrgeEventPulseSender("Illegal")
         with self.assertRaises(AssertionError): UrgeEventPulseSender(7)
 
-    def test_constructorWithOulseOutputParameter_createsObject(self):
+    def test_constructorWithInvalidParameterTransformator_raisesError(self):
+        with self.assertRaises(AssertionError): UrgeEventPulseSender(PulseOutputNone(), None)
+        with self.assertRaises(AssertionError): UrgeEventPulseSender(PulseOutputNone(), "Illegal")
+        with self.assertRaises(AssertionError): UrgeEventPulseSender(PulseOutputNone(), 7)
+
+    def test_constructorWithPulseOutputParameter_createsObject(self):
         self.assertIsInstance(UrgeEventPulseSender(PulseOutputNone()), UrgeEventPulseSender)
 
-class UrgeEventPulseSenderTransformationTest(unittest.TestCase):
-    pulseOutputStub = PulseOutputNone()
-    sut = UrgeEventPulseSender(pulseOutputStub)
+    def test_constructorWithPulseOutputParameterAndTransformator_createsObject(self):
+        self.assertIsInstance(UrgeEventPulseSender(PulseOutputNone(), UrgeEventPulseTransformator()), UrgeEventPulseSender)
 
     def test_onEventSendsTransformedValue(self):
-        self.sut.onEvent(0, 1.5, 0.01, [])
-        self.assertEqual(1, self.pulseOutputStub.__data__);
+        pulseOutputStub = PulseOutputNone()
+        sut = UrgeEventPulseSender(pulseOutputStub)
 
-        self.sut.onEvent(0.5, 1.5, 0.01, [])
-        self.assertEqual(128, self.pulseOutputStub.__data__);
+        sut.onEvent(0, 1.5, 0.01, [])
+        self.assertEqual(1, pulseOutputStub.__data__);
 
-        self.sut.onEvent(1, 1.5, 0.01, [])
-        self.assertEqual(255, self.pulseOutputStub.__data__);
+        sut.onEvent(0.5, 1.5, 0.01, [])
+        self.assertEqual(128, pulseOutputStub.__data__);
+
+        sut.onEvent(1, 1.5, 0.01, [])
+        self.assertEqual(255, pulseOutputStub.__data__);
 
 class UrgeEventPulseTransformatorTest(unittest.TestCase):
-    def test_constructorValidParameters_passes(self):
-        UrgeEventPulseTransformator(1, 255);
+    def test_constructorValidParameters_createsObject(self):
+        self.assertIsInstance(UrgeEventPulseTransformator(1, 255), UrgeEventPulseTransformator);
 
     def test_constructorInvalidParameters_raises(self):
         with self.assertRaises(AssertionError): UrgeEventPulseTransformator(0.5, 100)

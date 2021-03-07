@@ -9,7 +9,7 @@ def applyFiringPattern(pulseOutputDevice, pulseConfiguration, dataHandler):
 
 class UrgeEventPulseTransformator:
     ''' descirbes how to transform the internal urge value to a parallel out pulse value '''
-    def __init__(self, low, high):
+    def __init__(self, low = 1, high = 255):
         # assert provided values
         assert isinstance(low, int)
         assert isinstance(high, int)
@@ -26,10 +26,11 @@ class UrgeEventPulseTransformator:
 
 class UrgeEventPulseSender(UrgeEventListener.UrgeEventListener):
     ''' sends a pulse to the specified output device when a urge event occures '''
-    def __init__(self, pulseOutput):
+    def __init__(self, pulseOutput, transformator = UrgeEventPulseTransformator(1, 255)):
         assert isinstance(pulseOutput, PulseOutput.PulseOutput)
+        assert isinstance(transformator, UrgeEventPulseTransformator)
         self.__pulseOutput = pulseOutput
-        self.__transformator__ = UrgeEventPulseTransformator(1, 255)
+        self.__transformator__ = transformator
 
     def onEvent(self, urgeValue, recTime, lag, buttons):
         self.__pulseOutput.setDataValue(self.__transformator__.transform(urgeValue))
