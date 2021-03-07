@@ -15,13 +15,13 @@ class UrgeEventPulseSenderTransformationTest(unittest.TestCase):
     sut = UrgeEventPulseSender(PulseOutputNone())
 
     def test_ransformUrgeValueIntoPulseWithMinimumUrge_returns1(self):
-        self.assertEquals(1 ,self.sut.transformUrgeValueIntoPulse(0));
+        self.assertEqual(1 ,self.sut.transformUrgeValueIntoPulse(0));
 
     def test_ransformUrgeValueIntoPulseWithMaximumUrge_returns255(self):
-        self.assertEquals(255 ,self.sut.transformUrgeValueIntoPulse(1));
+        self.assertEqual(255 ,self.sut.transformUrgeValueIntoPulse(1));
 
     def test_ransformUrgeValueIntoPulseWithMedianUrge_returns128(self):
-        self.assertEquals(128 ,self.sut.transformUrgeValueIntoPulse(0.5));
+        self.assertEqual(128 ,self.sut.transformUrgeValueIntoPulse(0.5));
 
 
 if __name__ == '__main__':
