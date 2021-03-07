@@ -1,5 +1,5 @@
 import unittest
-from . import helpers
+from urge_monitor.visuals import helpers
 
 class ColorValidatorTest(unittest.TestCase):
 
