@@ -1,81 +1,68 @@
 from psychopy import core, logging
-from psychopy.iohub import launchHubServer
-import visuals
-import DataHandler
-import sound
+from . import visuals
+from .data import DataHandler, UrgeEventPulseSender
+from . import sound
+from . import devices
 
-import devices
+def MainLoop(configuration, baseDirectory):
+    currentRun = configuration['runtime']['curr_run']
+    currentRunConfiguration = configuration['runs'][currentRun]
 
-class UrgeRecordPulseSender(DataHandler.UrgeRecordEventListener):
-    def __init__(self, pulseOutput):
-        assert isinstance(pulseOutput, devices.PulseOutput.PulseOutput)
-        self.__pulseOutput = pulseOutput
+    DH = DataHandler.createDataHandler(configuration, baseDirectory, currentRun)
 
-    def onEvent(self, urgeValue):
-        self.__pulseOutput.setDataValue(int(urgeValue * 255.0))
-        self.__pulseOutput.sendPulse()
-
-def applyFiringPattern(pulseOutput, configPulse, DH):
-    if ('firing_pattern' in configPulse['pulse'] and configPulse['pulse']['firing_pattern'] == devices.PulseOutput.PulseFiringPattern.ON_URGE_RECORD):
-        DH.registerUrgeRecordListener(UrgeRecordPulseSender(pulseOutput))
-
-def MainLoop(C):
-    CurrRun = C['runtime']['curr_run']
-    DH = DataHandler.DataHandler(C['exp']['info'],
-        C['exp']['runs'][CurrRun][0],
-        C['exp']['main'], C['runs'][CurrRun])
     graphics = None
-
     try:
         # generate visual elements
-        graphics = visuals.Visuals.Visuals(C['monitor']['monitor'],
-            C['monitor']['window'], C['runs'][CurrRun]['visuals'])
+        graphics = visuals.Visuals.Visuals(configuration['monitor']['monitor'],
+            configuration['monitor']['window'], currentRunConfiguration['visuals'])
         logging.info(msg='graphical objects generated')
 
         # generate input object
-        IL = devices.InputListener.InputListener(C['input'], graphics.getWindow())
-        KeyAbort = C['exp']['main']['abort_key']
+        IL = devices.InputListener.InputListener(configuration['input'], graphics.getWindow())
+        KeyAbort = configuration['exp']['main']['abort_key']
         IL.RegisterKey(KeyAbort)
         c = 0
         keyPos = {}
-        for key in C['exp']['main']['log_buttons']:
+        for key in configuration['exp']['main']['log_buttons']:
             IL.RegisterKey(key)
             keyPos[key] = c
             c += 1
         IL.GetBufferedKeys()
 
-        PL = devices.PulseListener.PulseListener(C['pulse'], IL)
+        pulseListener = devices.PulseListener.createPulseListener(configuration['pulse'], IL)
+        pulseListener.initDevice()
         logging.info('PulseListener created')
-        pulseOut = devices.PulseOutput.createPulseOutput(C['pulse'])
+        pulseOut = devices.PulseOutput.createPulseOutput(configuration['pulse'])
         pulseOut.initDevice()
+        logging.info('PulseOutput created')
 
-        applyFiringPattern(pulseOut, C['pulse'], DH)
+        UrgeEventPulseSender.applyFiringPattern(pulseOut, configuration['pulse'], DH)
 
         # create sound objects
-        playPulseSoundbegin = C['pulse']['pulse']['play_sound_begin']
+        playPulseSoundbegin = configuration['pulse']['pulse']['play_sound_begin']
         if playPulseSoundbegin:
-            APb = sound.AudioPeep(C['pulse']['sound_begin'])
+            APb = sound.AudioPeep(configuration['pulse']['sound_begin'])
             logging.info('Audio Object (begin) created')
 
-        playPulseSoundend = C['pulse']['pulse']['play_sound_end']
+        playPulseSoundend = configuration['pulse']['pulse']['play_sound_end']
         if playPulseSoundend:
-            APe = sound.AudioPeep(C['pulse']['sound_end'])
+            APe = sound.AudioPeep(configuration['pulse']['sound_end'])
             logging.info('Audio Object (end) created')
 
-        urgevalue = 0.5
+        urgevalue = 0
         graphics.flip()
 
         DH.setState(state=DataHandler.STATE.RUNNING)
 
         # generate timers
-        frameclock_increment = 1.0 / C['runs'][CurrRun]['control']['frame_rate']
+        frameclock_increment = 1.0 / currentRunConfiguration['control']['frame_rate']
         frameclock = core.Clock()
-        plotclock_increment = 1.0 / C['runs'][CurrRun]['control']['hist_rate']
+        plotclock_increment = 1.0 / currentRunConfiguration['control']['hist_rate']
         plotclock = core.Clock()
         sampleclock_increment = (1.0 /
-            C['runs'][CurrRun]['control']['urge_sample_rate'])
+            currentRunConfiguration['control']['urge_sample_rate'])
         sampleclock = core.Clock()
-        t_run = float(C['runs'][CurrRun]['control']['run_time'])
+        t_run = float(currentRunConfiguration['control']['run_time'])
 
 ###############################################################
         ## Loop to wait for first pulse
@@ -101,7 +88,8 @@ def MainLoop(C):
                 abortRun = True
                 break
 
-            if PL.Pulse():
+            if pulseListener.pulseReceived():
+                pulseListener = None;
                 logging.info('Pulse received')
                 if playPulseSoundbegin:
                     APb.play()

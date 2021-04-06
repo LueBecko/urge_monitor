@@ -9,5 +9,4 @@ if [ -d "$ENVIRONMENT_FOLDER" ]; then
     activateVENV
 fi
 
-cd urge_monitor
-python3 RunExperiment.py
+python3 -m urge_monitor.RunExperiment

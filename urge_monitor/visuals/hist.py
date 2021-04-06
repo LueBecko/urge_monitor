@@ -43,10 +43,10 @@ def CreateHist(win, conf):
     # dispatch
     global hist_x, hist_y
     global vertical_max
+    vertical_max = conf['bg_height']
     hist_x = [float(i * conf['hist_width']) / conf['hist_samples'] +
                 conf['fg_width'] / 2.0 for i in range(conf['hist_samples'])]
-    hist_y = [0.0] * conf['hist_samples']
-    vertical_max = conf['bg_height']
+    hist_y = [vertical_max * -0.5] * conf['hist_samples']
     if conf['hist_fade']:
         CreateHist_fade(win, conf)
     else:

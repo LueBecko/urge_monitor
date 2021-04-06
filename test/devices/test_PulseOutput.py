@@ -1,5 +1,5 @@
 import unittest
-from urge_monitor.devices.PulseOutput import PulseOutput, createPulseOutput, PulseOutputNone, PulseOutputSimulation, PulseOutputParallel
+from urge_monitor.devices.PulseOutput import PulseOutput, createPulseOutput, PulseOutputNone, PulseOutputParallel
 
 class PulseOutputFactoryMethodTest(unittest.TestCase):
     def test_NoOutPulse_createsPulseOutputNone(self):
@@ -13,11 +13,11 @@ class PulseOutputFactoryMethodTest(unittest.TestCase):
         self.assertIsInstance(outputObject, (PulseOutput, PulseOutputNone))
         self.assertEqual(outputObject.getDataValue(), 0)
 
-    def test_OutPulseSimulation_createsPulseOutputSimulation(self):
+    def test_OutPulseSimulation_createsPulseOutputNone(self):
         pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': True},
             'out_pulse': {'data': 127}}
         outputObject = createPulseOutput(pulseConfig)
-        self.assertIsInstance(outputObject, (PulseOutput, PulseOutputSimulation))
+        self.assertIsInstance(outputObject, (PulseOutput, PulseOutputNone))
 
     def test_OutPulse_createsPulseOutputParallel(self):
         pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': False},
@@ -51,24 +51,6 @@ class PulseOutputParallelTest(unittest.TestCase):
     def test_OutPulseInit_withInvalidAddressConfiguration_fails(self):
         pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': False},
             'out_pulse': {'address': "0xCFF8", 'data': 127,'duration': 0.001}}
-        with self.assertRaises(AssertionError): outputObject = createPulseOutput(pulseConfig)
-
-
-class PulseOutputSimulationTest(unittest.TestCase):
-
-    def test_OutPulseSimulation_initialDataValue(self):
-        pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': True},
-            'out_pulse': {'data': 127}}
-        outputObject = createPulseOutput(pulseConfig)
-        self.assertEqual(outputObject.getDataValue(), 127)
-
-    def test_OutPulseSimulation_withoutOutPulseConfiguration_fails(self):
-        pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': True}}
-        with self.assertRaises(AssertionError): outputObject = createPulseOutput(pulseConfig)
-
-    def test_OutPulseSimulation_withInvalidDataConfiguration_fails(self):
-        pulseConfig = {'pulse': {'send_out_pulse': True, 'simulation': True},
-            'out_pulse': {'data': -999}}
         with self.assertRaises(AssertionError): outputObject = createPulseOutput(pulseConfig)
 
 

@@ -1,5 +1,1 @@
-cd urge_monitor
-
-"C:\Program Files\PsychoPy3\python.exe" RunExperiment.py
-
-cd ..
+"C:\Program Files\PsychoPy3\python.exe" -m urge_monitor.RunExperiment

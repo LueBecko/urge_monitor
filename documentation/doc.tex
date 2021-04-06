@@ -246,6 +246,7 @@ This file only contains one section: \verb|[input]|. One entry is always present
 		\item \verb|parallel| parallel port
 		\item \verb|serial| serial port
 		\item \verb|keyboard| pulse is coupled to a keyboard key
+		\item \verb|none| no pulse are to be received
 	\end{itemize}
 	\item \verb|send_out_pulse|  a boolean indicating if an out pulse should for synchornisytion purposes
 	\item \verb|firing_pattern|  a text which indicates how to pulses are fired
@@ -259,11 +260,11 @@ This file only contains one section: \verb|[input]|. One entry is always present
 
 \textbf{Note:} In future versions the simulation parameter might get replaced by a simulation interface.
 
-\textbf{Note:} The complete sound-configuration has grown into the pulse configuration. In futur version sound configuration might be moved to a seperate config file for clearity.
+\textbf{Note:} The complete sound-configuration has grown into the pulse configuration. In future version sound configuration might be moved to a seperate config file for clearity.
 
 \textbf{Note:} The parameter \verb|send_out_pulse| will become obsolete and will emerge into a separate \verb|firing_pattern|
 
-Each of the above interfaces is configured in an additional section with its name. So when choosing a \verb|parallel| interface the file \textit{pulse.ini} also needs to contain a section named \verb|[parallel]|. (see figure \ref{fig:pulseiniparallel})
+The interface \verb|none| does not require an additional config section. All other of the above interfaces are configured in an additional section with its name. So when choosing a \verb|parallel| interface the file \textit{pulse.ini} also needs to contain a section named \verb|[parallel]|. (see figure \ref{fig:pulseiniparallel})
 
 The section \verb|[parallel]| contains the items: \verb|address| (can be any token that is used by the OS to identify a parallel port, e.g. \verb|'LPT1'|, \verb|0x0378|, \dots) and \verb|pin| (indicating on which pin of the data port the pulse signal will be received).
 
@@ -414,6 +415,8 @@ There are some color spaces that guarantee that a color is displayed as the same
 
 \verb|[control]| contains items about runtime control of a run. It contains: \verb|run_time| (positive float, in seconds), \verb|frame_rate| (positive float, in Hz), \verb|hist_rate| (history update rate, positive float, in Hz) and \verb|urge_sample_rate| (sampling rate in Hz, positive float). \verb|frame_rate| and \verb|hist_rate| are very important for runtime efficiency. If the software runs slow or with huge or very variable latencies try to reduce \verb|hist_rate| (if this doesn't help also reduce \verb|frame_rate|).
 
+\verb|[control]| also may contain two optional parameters that indicate how urge values should be recorded in logs, CSVs and pulses send to other systems: \verb|coded_urge_value_low| and \verb|coded_urge_value_high|. Both values have to be integers between 1 and 255, where \verb|coded_urge_value_low| has to be less than \verb|coded_urge_value_high|. When ommited they default to \verb|coded_urge_value_low = 1| and \verb|coded_urge_value_high = 255|. 
+
 \begin{figure}
 	\begin{framed}
 		\begin{verbatim}
@@ -422,6 +425,8 @@ There are some color spaces that guarantee that a color is displayed as the same
 		frame_rate = 60
 		hist_rate = 30
 		urge_sample_rate = 10
+		coded_urge_value_low = 1
+		coded_urge_value_high = 255
 		[visuals]
 		col = (0, 0, 0)
 		pos = [-2, 0]
@@ -455,9 +460,8 @@ There are some color spaces that guarantee that a color is displayed as the same
 		apos = [(0,4), (0,-6)]
 		asize = [2, 0.25]
 		acol = [(255, 255, 255), (255, 0, 0)]
-		\end{verbatim}
-	\end{framed}
-	\caption{Example \textit{defaults.ini}. Configurations for a single run can be as extensive, but can also be just a small subset of those parameters that get their default values from \textit{defaults.ini} overwritten. This configuration creates a right sided 6 second history with labels left of the bar and some annotations.}
+	\end{verbatim}\end{framed}
+	\caption{Example \textit{defaults.ini}. Configurations for a single run can be as extensive, but can also be just a small subset of those parameters that get their default values from \textit{defaults.ini} overwritten.}
 	\label{fig:defaultsini}
 \end{figure}
 
