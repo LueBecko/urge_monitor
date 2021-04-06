@@ -38,6 +38,7 @@ class InputDeviceMousePosAbs(InputDeviceAbstract):
         wc[1] = -wc[1]
         self.__scale_bot = self.__mouse._pix2windowUnits(wc)[1]
         self.__scale_range = self.__scale_top - self.__scale_bot
+        self.__mouse.setPos(newPos=(0, self.__scale_bot))
 
     def readValue(self):
         self.p = self.__mouse.getPos()[1]
