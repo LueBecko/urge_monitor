@@ -16,7 +16,10 @@ The script ```run.sh``` starts the Urge-Monitor from the virtual environment.
 
 ### Run on Windows
 
-...
+Setup (Lübeck) 
+ * install Psychopy (tested on [PsychoPy 2021.1.2](https://github.com/psychopy/psychopy/releases/tag/2021.1.2))
+ * manually install packages ```pylsl```
+   * ...
 
 ### Parallel Port drivers
 
